@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37531.7 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HatchGrouper", "HatchGrouper.csproj", "{D1FC419F-92F9-A28C-7E7F-FA1CA3B9566C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D1FC419F-92F9-A28C-7E7F-FA1CA3B9566C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1FC419F-92F9-A28C-7E7F-FA1CA3B9566C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1FC419F-92F9-A28C-7E7F-FA1CA3B9566C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1FC419F-92F9-A28C-7E7F-FA1CA3B9566C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1842E657-8A3A-4C06-BE7E-6652C931F315}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,61 @@
+<Window x:Class="HatchGrouper.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Групування ніш для ревізійних люків" Height="620" Width="1060">
+    <!-- All visible texts are (re)assigned from Localization.cs in MainWindow.UpdateTexts() -->
+    <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Left: pasted list of niches -->
+        <DockPanel Grid.Column="0" Margin="0,0,8,0">
+            <TextBlock x:Name="InputLabel" DockPanel.Dock="Top" TextWrapping="Wrap" Margin="0,0,0,4" />
+            <TextBox x:Name="InputBox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                     FontFamily="Consolas" />
+        </DockPanel>
+
+        <!-- Right: settings, buttons, result -->
+        <DockPanel Grid.Column="1">
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                <TextBlock x:Name="GapLabel" VerticalAlignment="Center" />
+                <TextBox x:Name="GapBox" Text="5" Width="40" Margin="4,0,12,0" />
+                <TextBlock x:Name="TrimLabel" VerticalAlignment="Center" />
+                <TextBox x:Name="TrimBox" Text="60" Width="40" Margin="4,0,12,0" />
+                <TextBlock x:Name="LapLabel" VerticalAlignment="Center" />
+                <TextBox x:Name="LapBox" Text="25" Width="40" Margin="4,0,12,0" />
+                <TextBlock x:Name="HatchLabel" VerticalAlignment="Center" />
+                <TextBox x:Name="HatchBox" Text="60" Width="40" Margin="4,0,12,0" />
+            </WrapPanel>
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                <Button x:Name="GroupButton" Click="Group_Click" Padding="12,4" Margin="0,0,8,0" />
+                <Button x:Name="OpenButton" Click="Open_Click" Padding="12,4" Margin="0,0,8,0" />
+                <Button x:Name="SaveButton" Click="Save_Click" Padding="12,4" Margin="0,0,8,0" />
+                <Button x:Name="ExportButton" Click="Export_Click" Padding="12,4" Margin="0,0,8,0" />
+                <Button x:Name="SettingsButton" Click="Settings_Click" Padding="12,4" Margin="0,0,8,0" />
+                <Button x:Name="HelpButton" Click="Help_Click" Padding="12,4" />
+            </WrapPanel>
+            <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" Margin="0,8,0,0" TextWrapping="Wrap" />
+            <DataGrid x:Name="ResultGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                      CanUserAddRows="False" HeadersVisibility="Column">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding No}" />
+                    <DataGridTextColumn Binding="{Binding Count}" />
+                    <DataGridTextColumn Binding="{Binding Niche}" />
+                    <DataGridTextColumn Binding="{Binding Box}" />
+                    <DataGridTextColumn Binding="{Binding Hatch}" />
+                    <DataGridTextColumn Binding="{Binding MaxGap}" />
+                    <DataGridTextColumn Binding="{Binding Lap}" />
+                    <DataGridTextColumn Binding="{Binding Composition}" Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextWrapping" Value="Wrap" />
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+    </Grid>
+</Window>

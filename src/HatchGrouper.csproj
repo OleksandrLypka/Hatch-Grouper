@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <RootNamespace>HatchGrouper</RootNamespace>
+    <AssemblyName>HatchGrouper</AssemblyName>
+    <Version>0.1</Version>
+    <Authors>Oleksandr Lypka</Authors>
+    <Company>Oleksandr Lypka</Company>
+    <Product>HatchGrouper</Product>
+    <Copyright>Copyright (c) Oleksandr Lypka</Copyright>
+  </PropertyGroup>
+</Project>

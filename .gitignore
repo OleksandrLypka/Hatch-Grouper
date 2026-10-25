@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+*.user
+
+*.suo
+*.vsidx
+
+# build output of publish.ps1 (upload the zip to GitHub Releases instead)
+releases/*
+!releases/.gitkeep
