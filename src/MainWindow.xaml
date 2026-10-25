@@ -19,6 +19,7 @@
         <!-- Right: settings, buttons, result -->
         <DockPanel Grid.Column="1">
             <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                <TextBlock x:Name="WidthRowPrefix" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" Visibility="Collapsed" />
                 <TextBlock x:Name="GapLabel" VerticalAlignment="Center" />
                 <TextBox x:Name="GapBox" Text="5" Width="40" Margin="4,0,12,0" />
                 <TextBlock x:Name="TrimLabel" VerticalAlignment="Center" />
@@ -27,6 +28,15 @@
                 <TextBox x:Name="LapBox" Text="25" Width="40" Margin="4,0,12,0" />
                 <TextBlock x:Name="HatchLabel" VerticalAlignment="Center" />
                 <TextBox x:Name="HatchBox" Text="60" Width="40" Margin="4,0,12,0" />
+            </WrapPanel>
+            <WrapPanel x:Name="HeightParamsPanel" DockPanel.Dock="Top" Margin="0,0,0,8" Visibility="Collapsed">
+                <TextBlock x:Name="HeightRowPrefix" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBlock x:Name="GapHLabel" VerticalAlignment="Center" />
+                <TextBox x:Name="GapHBox" Text="5" Width="40" Margin="4,0,12,0" />
+                <TextBlock x:Name="TrimHLabel" VerticalAlignment="Center" />
+                <TextBox x:Name="TrimHBox" Text="60" Width="40" Margin="4,0,12,0" />
+                <TextBlock x:Name="LapHLabel" VerticalAlignment="Center" />
+                <TextBox x:Name="LapHBox" Text="25" Width="40" Margin="4,0,12,0" />
             </WrapPanel>
             <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                 <Button x:Name="GroupButton" Click="Group_Click" Padding="12,4" Margin="0,0,8,0" />

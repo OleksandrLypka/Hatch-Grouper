@@ -23,12 +23,12 @@ namespace HatchGrouper
             AddFormula(Loc.T("help.formulas"));
 
             // The same formulas as in Models.cs (NicheGroup.Compute), with a sample niche of 840 x 890 mm
-            int boxW = 840 - 2 * s.GapMm, boxH = 890 - 2 * s.GapMm;
+            int boxW = 840 - 2 * s.GapMm, boxH = 890 - 2 * s.EffGapHMm;
             int hatchW = boxW - 2 * s.HatchOffsetMm, hatchH = boxH - 2 * s.HatchOffsetMm;
             AddHeader(Loc.T("help.h.example"));
             AddFormula(Loc.T("help.example", s.GapMm, s.TrimMm, s.MinLapMm, s.HatchOffsetMm,
-                             s.MaxGapMm, s.ToleranceMm, boxW, boxH, hatchW, hatchH));
-            if (s.ToleranceMm < 0)
+                             s.MaxGapWMm, s.ToleranceWMm, boxW, boxH, hatchW, hatchH));
+            if (s.ToleranceWMm < 0 || s.ToleranceHMm < 0)
                 AddText(Loc.T("help.example.negative"), Brushes.Firebrick);
 
             AddHeader(Loc.T("help.h.table"));

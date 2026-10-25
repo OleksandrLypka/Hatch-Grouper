@@ -37,10 +37,15 @@ namespace HatchGrouper
             ["p.trim"] = ("Лиштва, {0}:", "Trim, {0}:", "Listwa, {0}:"),
             ["p.lap"] = ("Мін. напуск, {0}:", "Min. lap, {0}:", "Min. zakład, {0}:"),
             ["p.hatch"] = ("Люк менший за ящик, {0}/бік:", "Hatch smaller than box, {0}/side:", "Właz mniejszy od skrzynki, {0}/stronę:"),
+            ["p.width.prefix"] = ("Ш (боки) —", "W (sides) —", "Szer. (boki) —"),
+            ["p.height.prefix"] = ("В (верх/низ) —", "H (top/bottom) —", "Wys. (góra/dół) —"),
             ["name.gap"] = ("Зазор", "Gap", "Luz"),
             ["name.trim"] = ("Лиштва", "Trim", "Listwa"),
             ["name.lap"] = ("Мін. напуск", "Min. lap", "Min. zakład"),
             ["name.hatch"] = ("Люк менший за ящик", "Hatch smaller than box", "Właz mniejszy od skrzynki"),
+            ["name.gap.h"] = ("Зазор (В)", "Gap (H)", "Luz (Wys.)"),
+            ["name.trim.h"] = ("Лиштва (В)", "Trim (H)", "Listwa (Wys.)"),
+            ["name.lap.h"] = ("Мін. напуск (В)", "Min. lap (H)", "Min. zakład (Wys.)"),
             ["btn.group"] = ("Групувати", "Group", "Grupuj"),
             ["btn.open"] = ("Відкрити…", "Open…", "Otwórz…"),
             ["btn.save"] = ("Зберегти…", "Save…", "Zapisz…"),
@@ -74,6 +79,9 @@ namespace HatchGrouper
             ["set.params"] = ("Параметри (зазор, лиштва, напуск, відступ люка):", "Parameters (gap, trim, lap, hatch offset):",
                               "Parametry (luz, listwa, zakład, odsunięcie włazu):"),
             ["set.display"] = ("Розміри в таблиці результату:", "Sizes in the result table:", "Wymiary w tabeli wyników:"),
+            ["set.tolerance"] = ("Допуск розкиду:", "Spread tolerance:", "Tolerancja rozrzutu:"),
+            ["set.tol.sym"] = ("Симетричний (з усіх сторін)", "Symmetric (all sides)", "Symetryczna (ze wszystkich stron)"),
+            ["set.tol.sep"] = ("Окремий для ширини і висоти", "Separate for width and height", "Osobna dla szerokości i wysokości"),
             ["set.language"] = ("Мова / Language / Język:", "Мова / Language / Język:", "Мова / Language / Język:"),
             ["set.note"] = ("Налаштування зберігаються автоматично.", "Settings are saved automatically.", "Ustawienia są zapisywane automatycznie."),
             ["set.version"] = ("Версія {0}", "Version {0}", "Wersja {0}"),
@@ -165,15 +173,18 @@ namespace HatchGrouper
 
             ["help.h.how"] = ("Як групуються ніші", "How niches are grouped", "Jak grupowane są nisze"),
             ["help.how"] = (
-                "Усі розміри рахуються в міліметрах. Одна група — це ніші, у яких і ширина, і висота відрізняються не більше ніж на «допуск розкиду». " +
+                "Усі розміри рахуються в міліметрах. Одна група — це ніші, у яких і ширина, і висота відрізняються не більше ніж на «допуск розкиду» " +
+                "(за замовчуванням він симетричний з усіх сторін, а в «Налаштування…» можна увімкнути окремий допуск для ширини і висоти). " +
                 "Ящик робиться під найменшу нішу групи, тож у більші ніші він входить із трохи більшою щілиною, яку ховає лиштва. " +
-                "Програма точним перебором шукає найменшу кількість таких груп, що охоплюють усі ніші.",
-                "All sizes are calculated in millimetres. One group is a set of niches whose width and height both differ by no more than the \"spread tolerance\". " +
+                "Програма точним перебором шукає найменшу кількість таких груп, що охоплюють усі ніші, а ніші на межі кількох груп відносить туди, де максимальний зазор буде найменшим.",
+                "All sizes are calculated in millimetres. One group is a set of niches whose width and height both differ by no more than the \"spread tolerance\" " +
+                "(symmetric on all sides by default; separate tolerance for width and height can be enabled in \"Settings…\"). " +
                 "The box is made for the smallest niche of the group, so in larger niches it fits with a slightly bigger gap, which the trim hides. " +
-                "The program uses an exact search to find the smallest number of such groups that cover all niches.",
-                "Wszystkie wymiary są liczone w milimetrach. Jedna grupa to nisze, w których zarówno szerokość, jak i wysokość różnią się nie więcej niż o \"tolerancję rozrzutu\". " +
+                "The program uses an exact search to find the smallest number of such groups that cover all niches, and assigns borderline niches that fit into several groups so that the maximum gap is minimal.",
+                "Wszystkie wymiary są liczone w milimetrach. Jedna grupa to nisze, w których zarówno szerokość, jak i wysokość różnią się nie więcej niż o \"tolerancję rozrzutu\" " +
+                "(domyślnie symetryczną ze wszystkich stron; w \"Ustawienia…\" można włączyć osobną tolerancję dla szerokości i wysokości). " +
                 "Skrzynka jest robiona na najmniejszą niszę w grupie, więc w większych niszach pasuje z nieco większą szczeliną, którą zakrywa listwa. " +
-                "Program dokładnym przeszukiwaniem znajduje najmniejszą liczbę takich grup obejmujących wszystkie nisze."),
+                "Program dokładnym przeszukiwaniem znajduje najmniejszą liczbę takich grup obejmujących wszystkie nisze, a nisze pasujące do kilku grup przypisuje tak, aby maksymalny luz był jak najmniejszy."),
 
             ["help.h.formulas"] = ("Формули (усі розміри в мм)", "Formulas (all sizes in mm)", "Wzory (wszystkie wymiary w mm)"),
             ["help.formulas"] = (

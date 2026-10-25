@@ -16,6 +16,7 @@ namespace HatchGrouper
         private LengthUnit _inputUnit = LengthUnit.Cm;
         private LengthUnit _paramUnit = LengthUnit.Mm;
         private LengthUnit _displayUnit = LengthUnit.Cm;
+        private bool _separateTolerance = false;
 
         public MainWindow()
         {
@@ -69,10 +70,15 @@ namespace HatchGrouper
                 ResultGrid.ItemsSource = _rows;
 
                 var u = UnitHelper.Name(_displayUnit);
+                string tolText = settings.ToleranceWMm == settings.ToleranceHMm
+                    ? UnitHelper.Format(settings.ToleranceWMm, _displayUnit)
+                    : $"{UnitHelper.Format(settings.ToleranceWMm, _displayUnit)} × {UnitHelper.Format(settings.ToleranceHMm, _displayUnit)}";
+                string maxGapText = settings.MaxGapWMm == settings.MaxGapHMm
+                    ? UnitHelper.Format(settings.MaxGapWMm, _displayUnit)
+                    : $"{UnitHelper.Format(settings.MaxGapWMm, _displayUnit)} × {UnitHelper.Format(settings.MaxGapHMm, _displayUnit)}";
+
                 var status = new StringBuilder(Loc.T("status.result",
-                    niches.Count, groups.Count,
-                    UnitHelper.Format(settings.ToleranceMm, _displayUnit), u,
-                    UnitHelper.Format(settings.MaxGapMm, _displayUnit)));
+                    niches.Count, groups.Count, tolText, u, maxGapText));
                 if (skipped.Count > 0)
                     status.Append(Loc.T("status.skipped", skipped.Count, skipped[0]));
                 if (niches.Any(n => Math.Min(n.WidthMm, n.HeightMm) < 200 || Math.Max(n.WidthMm, n.HeightMm) > 3000))
@@ -166,7 +172,11 @@ namespace HatchGrouper
         {
             var current = new Settings
             {
-                InputUnit = _inputUnit, ParamUnit = _paramUnit, DisplayUnit = _displayUnit, Language = Loc.Current,
+                InputUnit = _inputUnit,
+                ParamUnit = _paramUnit,
+                DisplayUnit = _displayUnit,
+                SeparateTolerance = _separateTolerance,
+                Language = Loc.Current,
             };
             var dlg = new SettingsWindow(current) { Owner = this };
             if (dlg.ShowDialog() != true) return;
@@ -174,11 +184,20 @@ namespace HatchGrouper
             var inputChanged = dlg.InputUnit != _inputUnit;
             var paramChanged = dlg.ParamUnit != _paramUnit;
             var displayChanged = dlg.DisplayUnit != _displayUnit;
+            var tolModeChanged = dlg.SeparateTolerance != _separateTolerance;
             var languageChanged = dlg.SelectedLanguage != Loc.Current;
-            if (!inputChanged && !paramChanged && !displayChanged && !languageChanged) return;
+            if (!inputChanged && !paramChanged && !displayChanged && !tolModeChanged && !languageChanged) return;
 
             // Keep the untouched example in sync with the chosen input unit and language
             bool isExample = InputBox.Text == ExampleFor(_inputUnit);
+
+            // When switching from symmetric to separate W/H, copy the current W boxes into H boxes
+            if (!_separateTolerance && dlg.SeparateTolerance)
+            {
+                GapHBox.Text = GapBox.Text;
+                TrimHBox.Text = TrimBox.Text;
+                LapHBox.Text = LapBox.Text;
+            }
 
             // Re-express the parameter fields in the new unit (values that are not valid numbers stay as typed)
             if (paramChanged) ConvertParamBoxes(_paramUnit, dlg.ParamUnit);
@@ -186,6 +205,7 @@ namespace HatchGrouper
             _inputUnit = dlg.InputUnit;
             _paramUnit = dlg.ParamUnit;
             _displayUnit = dlg.DisplayUnit;
+            _separateTolerance = dlg.SeparateTolerance;
             Loc.Current = dlg.SelectedLanguage;
             if (isExample) InputBox.Text = ExampleFor(_inputUnit);
             UpdateTexts();
@@ -200,7 +220,7 @@ namespace HatchGrouper
             }
             else if (_rows.Count > 0)
             {
-                Group_Click(sender, e); // redraw the result in the new units / language
+                Group_Click(sender, e); // redraw the result in the new units / tolerance mode / language
             }
             else
             {
@@ -210,28 +230,48 @@ namespace HatchGrouper
 
         // ---- Helpers ----
 
-        private Settings ReadSettings() => new Settings
+        private Settings ReadSettings()
         {
-            InputUnit = _inputUnit,
-            ParamUnit = _paramUnit,
-            DisplayUnit = _displayUnit,
-            Language = Loc.Current,
-            GapMm = ReadLength(GapBox, "name.gap"),
-            TrimMm = ReadLength(TrimBox, "name.trim"),
-            MinLapMm = ReadLength(LapBox, "name.lap"),
-            HatchOffsetMm = ReadLength(HatchBox, "name.hatch"),
-        };
+            int gapW = ReadLength(GapBox, "name.gap");
+            int trimW = ReadLength(TrimBox, "name.trim");
+            int lapW = ReadLength(LapBox, "name.lap");
+            int hatch = ReadLength(HatchBox, "name.hatch");
+
+            int gapH = _separateTolerance ? ReadLength(GapHBox, "name.gap.h") : gapW;
+            int trimH = _separateTolerance ? ReadLength(TrimHBox, "name.trim.h") : trimW;
+            int lapH = _separateTolerance ? ReadLength(LapHBox, "name.lap.h") : lapW;
+
+            return new Settings
+            {
+                InputUnit = _inputUnit,
+                ParamUnit = _paramUnit,
+                DisplayUnit = _displayUnit,
+                SeparateTolerance = _separateTolerance,
+                Language = Loc.Current,
+                GapMm = gapW,
+                TrimMm = trimW,
+                MinLapMm = lapW,
+                HatchOffsetMm = hatch,
+                GapHMm = gapH,
+                TrimHMm = trimH,
+                MinLapHMm = lapH,
+            };
+        }
 
         private void ApplySettings(Settings s)
         {
             _inputUnit = s.InputUnit;
             _paramUnit = s.ParamUnit;
             _displayUnit = s.DisplayUnit;
+            _separateTolerance = s.SeparateTolerance;
             Loc.Current = s.Language;
             GapBox.Text = UnitHelper.Format(s.GapMm, _paramUnit);
             TrimBox.Text = UnitHelper.Format(s.TrimMm, _paramUnit);
             LapBox.Text = UnitHelper.Format(s.MinLapMm, _paramUnit);
             HatchBox.Text = UnitHelper.Format(s.HatchOffsetMm, _paramUnit);
+            GapHBox.Text = UnitHelper.Format(s.EffGapHMm, _paramUnit);
+            TrimHBox.Text = UnitHelper.Format(s.EffTrimHMm, _paramUnit);
+            LapHBox.Text = UnitHelper.Format(s.EffMinLapHMm, _paramUnit);
             UpdateTexts();
         }
 
@@ -244,10 +284,20 @@ namespace HatchGrouper
 
             Title = Loc.T("title") + " v" + AppInfo.VersionText;
             InputLabel.Text = Loc.T("input.label", inU);
+
+            WidthRowPrefix.Text = Loc.T("p.width.prefix");
+            HeightRowPrefix.Text = Loc.T("p.height.prefix");
+            WidthRowPrefix.Visibility = _separateTolerance ? Visibility.Visible : Visibility.Collapsed;
+            HeightParamsPanel.Visibility = _separateTolerance ? Visibility.Visible : Visibility.Collapsed;
+
             GapLabel.Text = Loc.T("p.gap", parU);
             TrimLabel.Text = Loc.T("p.trim", parU);
             LapLabel.Text = Loc.T("p.lap", parU);
             HatchLabel.Text = Loc.T("p.hatch", parU);
+            GapHLabel.Text = Loc.T("p.gap", parU);
+            TrimHLabel.Text = Loc.T("p.trim", parU);
+            LapHLabel.Text = Loc.T("p.lap", parU);
+
             GroupButton.Content = Loc.T("btn.group");
             OpenButton.Content = Loc.T("btn.open");
             SaveButton.Content = Loc.T("btn.save");
@@ -304,7 +354,7 @@ namespace HatchGrouper
 
         private void ConvertParamBoxes(LengthUnit from, LengthUnit to)
         {
-            foreach (var box in new[] { GapBox, TrimBox, LapBox, HatchBox })
+            foreach (var box in new[] { GapBox, TrimBox, LapBox, HatchBox, GapHBox, TrimHBox, LapHBox })
                 if (TryParseLength(box.Text, from, out int mm))
                     box.Text = UnitHelper.Format(mm, to);
         }
@@ -317,7 +367,7 @@ namespace HatchGrouper
                 if (g.HatchW > 0 && g.HatchH > 0) continue;
                 throw new UserException(Loc.T("err.toosmall",
                     UnitHelper.Format(g.MinW, s.InputUnit), UnitHelper.Format(g.MinH, s.InputUnit),
-                    UnitHelper.Name(s.InputUnit), s.GapMm, s.HatchOffsetMm));
+                    UnitHelper.Name(s.InputUnit), Math.Max(s.GapMm, s.EffGapHMm), s.HatchOffsetMm));
             }
         }
 
@@ -380,4 +430,3 @@ namespace HatchGrouper
         }
     }
 }
-

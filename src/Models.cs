@@ -53,20 +53,34 @@ namespace HatchGrouper
         public LengthUnit ParamUnit { get; set; } = LengthUnit.Mm;   // unit of the parameter fields (gap, trim, lap, hatch offset)
         public LengthUnit DisplayUnit { get; set; } = LengthUnit.Cm; // unit of sizes in the result table / CSV
         public AppLanguage Language { get; set; } = AppLanguage.En; // interface language, English by default (an app preference, not part of a project)
+        public bool SeparateTolerance { get; set; } = false;         // false = symmetric on all sides (default); true = separate W and H
 
-        public int GapMm { get; set; } = 5;          // box-to-niche gap per side
-        public int TrimMm { get; set; } = 60;        // trim protrusion beyond the box per side
-        public int MinLapMm { get; set; } = 25;      // minimal trim overlap on the wall (assumption, ask the designer)
+        public int GapMm { get; set; } = 5;          // box-to-niche gap per side (width / all sides)
+        public int TrimMm { get; set; } = 60;        // trim protrusion beyond the box per side (width / all sides)
+        public int MinLapMm { get; set; } = 25;      // minimal trim overlap on the wall (width / all sides)
         public int HatchOffsetMm { get; set; } = 60; // hatch is smaller than the box by this much per side
 
-        /// <summary>Largest gap per side that the trim can still hide.</summary>
-        [JsonIgnore] public int MaxGapMm => TrimMm - MinLapMm;
+        // Height (top/bottom) parameters, used only when SeparateTolerance is true
+        public int GapHMm { get; set; } = 5;
+        public int TrimHMm { get; set; } = 60;
+        public int MinLapHMm { get; set; } = 25;
+
+        [JsonIgnore] public int EffGapHMm => SeparateTolerance ? GapHMm : GapMm;
+        [JsonIgnore] public int EffTrimHMm => SeparateTolerance ? TrimHMm : TrimMm;
+        [JsonIgnore] public int EffMinLapHMm => SeparateTolerance ? MinLapHMm : MinLapMm;
+
+        /// <summary>Largest gap per side that the trim can still hide (width, height).</summary>
+        [JsonIgnore] public int MaxGapWMm => TrimMm - MinLapMm;
+        [JsonIgnore] public int MaxGapHMm => EffTrimHMm - EffMinLapHMm;
+        [JsonIgnore] public int MaxGapMm => MaxGapWMm;
 
         /// <summary>
-        /// Allowed size spread inside a group (per dimension).
+        /// Allowed size spread inside a group (width and height).
         /// Gap per side = GapMm + spread / 2, so spread &lt;= 2 * (MaxGapMm - GapMm).
         /// </summary>
-        [JsonIgnore] public int ToleranceMm => 2 * (MaxGapMm - GapMm);
+        [JsonIgnore] public int ToleranceWMm => 2 * (MaxGapWMm - GapMm);
+        [JsonIgnore] public int ToleranceHMm => 2 * (MaxGapHMm - EffGapHMm);
+        [JsonIgnore] public int ToleranceMm => ToleranceWMm;
     }
 
     /// <summary>A set of niches that share one box size.</summary>
@@ -82,11 +96,13 @@ namespace HatchGrouper
             MinW = Niches.Min(n => n.WidthMm);  MaxW = Niches.Max(n => n.WidthMm);
             MinH = Niches.Min(n => n.HeightMm); MaxH = Niches.Max(n => n.HeightMm);
             BoxW = MinW - 2 * s.GapMm;          // the box must fit the smallest niche
-            BoxH = MinH - 2 * s.GapMm;
+            BoxH = MinH - 2 * s.EffGapHMm;
             HatchW = BoxW - 2 * s.HatchOffsetMm;
             HatchH = BoxH - 2 * s.HatchOffsetMm;
-            MaxGapMm = s.GapMm + Math.Max(MaxW - MinW, MaxH - MinH) / 2.0;
-            LapMm = s.TrimMm - MaxGapMm;
+            double gapW = s.GapMm + (MaxW - MinW) / 2.0;
+            double gapH = s.EffGapHMm + (MaxH - MinH) / 2.0;
+            MaxGapMm = Math.Max(gapW, gapH);
+            LapMm = Math.Min(s.TrimMm - gapW, s.EffTrimHMm - gapH);
         }
     }
 

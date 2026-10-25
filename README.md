@@ -9,9 +9,9 @@ so that one box can be manufactured for a whole group of similar niches instead 
 ## Features
 
 - Paste the niche list straight from the customer's document (Word, Excel, plain text).
-- Exact grouping: finds the minimum number of groups that cover all niches.
+- Exact grouping: finds the minimum number of groups that cover all niches, and assigns borderline niches that fit into several groups so that the maximum gap is minimal.
 - Per group: box size, hatch size, maximum gap, minimum trim lap and the list of niches (by entrance).
-- Adjustable parameters: gap, trim, minimum lap, hatch offset.
+- Adjustable parameters: gap, trim, minimum lap, hatch offset (symmetric on all sides by default; optional separate parameters/tolerance for width and height in **Settings…**).
 - Units of measurement (cm / mm) chosen separately for the input list, the parameter fields and the result table.
 - Interface languages: English (default), Ukrainian, Polish. Switch in **Settings…**.
 - **Formulas…** window: plain-language explanation, all formulas and an example computed from your current numbers.
@@ -90,9 +90,11 @@ gap per side       = gap + spread / 2                 # spread = largest - small
 lap on the wall    = trim - gap per side
 ```
 
-Grouping: every distinct (width, height) is a point. A group is a tolerance × tolerance square.
-The program searches for the minimal number of squares that cover all points
-(exact set cover, depth-first search with pruning, see [`Grouper.cs`](src/Grouper.cs)).
+Grouping: every distinct (width, height) is a point. A group is a `toleranceW × toleranceH` rectangle
+(a square by default when tolerance is symmetric on all sides).
+The program searches for the minimal number of rectangles that cover all points
+(exact set cover, depth-first search with pruning), and then assigns points that fall into
+several chosen rectangles so that the maximum gap across groups is minimal (see [`Grouper.cs`](src/Grouper.cs)).
 
 ## Project structure
 
@@ -115,8 +117,6 @@ To add a language, add a value to `AppLanguage`, one more text to every row of t
 
 - Export the result to .docx (Open XML SDK).
 - Unit tests for `Grouper` (expected result for the sample list: 10 groups at 60 mm tolerance).
-- Choose the assignment of a size that fits several groups so that the maximum gap is minimal.
-- Separate tolerance for width and height.
 
 ## License
 
@@ -152,3 +152,4 @@ The version stays at 0.1 until the author decides otherwise.
 - Program settings saved between runs; example input; user-friendly error messages.
 - Units (cm / mm) for the input list, parameters and result table; interface language switch.
 - **Formulas…** window with a plain explanation; Polish language; English is the default language.
+- Optimal assignment of borderline niches to minimise the maximum gap; optional separate tolerance for width and height (symmetric on all sides by default).
