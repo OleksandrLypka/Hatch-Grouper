@@ -1,4 +1,4 @@
-# Builds a release of HatchGrouper into the "releases" folder.
+﻿# Builds a release of HatchGrouper into the "releases" folder.
 #
 #   .\publish.ps1                      interactive prompt (asks 1 or 2)
 #   .\publish.ps1 -SelfContained       self-contained single .exe (works without .NET installed, bigger)
@@ -18,8 +18,8 @@ if (-not $PSBoundParameters.ContainsKey('FrameworkDependent') -and -not $PSBound
     Write-Host ""
     Write-Host "=== HatchGrouper: Release Build ===" -ForegroundColor Cyan
     Write-Host "Select build type:"
-    Write-Host "  [1] Self-Contained      — runs on any PC without .NET installed (~150 MB) [default]" -ForegroundColor Green
-    Write-Host "  [2] Framework-Dependent — requires .NET 8 Desktop Runtime installed (~1-2 MB)" -ForegroundColor Yellow
+    Write-Host "  [1] Self-Contained      - runs on any PC without .NET installed (approx. 150 MB) [default]" -ForegroundColor Green
+    Write-Host "  [2] Framework-Dependent - requires .NET 8 Desktop Runtime installed (approx. 1-2 MB)" -ForegroundColor Yellow
     Write-Host ""
     $choice = Read-Host "Your choice (1 or 2, Enter = 1)"
     if ($choice -eq '2') {
