@@ -36,7 +36,8 @@ Or open `src/HatchGrouper.csproj` in Visual Studio and press F5.
 ## Releases
 
 ```
-.\publish.ps1                      # single self-contained .exe, works without .NET installed
+.\publish.ps1                      # interactive: asks to choose Self-Contained or Framework-Dependent
+.\publish.ps1 -SelfContained       # single self-contained .exe, works without .NET installed
 .\publish.ps1 -FrameworkDependent  # small build, needs the .NET 8 Desktop Runtime
 ```
 
