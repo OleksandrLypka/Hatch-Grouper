@@ -40,6 +40,7 @@
             </WrapPanel>
             <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                 <Button x:Name="GroupButton" Click="Group_Click" Padding="12,4" Margin="0,0,8,0" />
+                <Button x:Name="VisualizerButton" Click="Visualizer_Click" Padding="12,4" Margin="0,0,8,0" />
                 <Button x:Name="OpenButton" Click="Open_Click" Padding="12,4" Margin="0,0,8,0" />
                 <Button x:Name="SaveButton" Click="Save_Click" Padding="12,4" Margin="0,0,8,0" />
                 <Button x:Name="ExportButton" Click="Export_Click" Padding="12,4" Margin="0,0,8,0" />

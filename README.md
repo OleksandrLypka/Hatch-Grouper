@@ -15,6 +15,7 @@ so that one box can be manufactured for a whole group of similar niches instead 
 - Units of measurement (cm / mm) chosen separately for the input list, the parameter fields and the result table.
 - Interface languages: English (default), Ukrainian, Polish. Switch in **Settings…**.
 - **Formulas…** window: plain-language explanation, all formulas and an example computed from your current numbers.
+- **Visualization…** window: interactive 2D map of niches and group bounding boxes with zoom, pan, and group highlighting.
 - Settings are saved automatically between runs.
 - Save / open a whole project (`*.hatch.json`) and export the result to CSV (opens correctly in Excel).
 - Readable error messages instead of crashes.
@@ -107,6 +108,7 @@ several chosen rectangles so that the maximum gap across groups is minimal (see 
 | `src/MainWindow.*` | main window, project save/load, CSV export |
 | `src/SettingsWindow.*` | settings dialog (units, language) |
 | `src/HelpWindow.*` | formulas and explanation window |
+| `src/VisualizerWindow.*` | interactive 2D niche grouping map (zoom, pan, legend) |
 | `src/SettingsStore.cs` | saves the settings to `%AppData%\HatchGrouper\settings.json` |
 
 ## Adding or fixing a translation
@@ -154,3 +156,4 @@ The version stays at 0.1 until the author decides otherwise.
 - Units (cm / mm) for the input list, parameters and result table; interface language switch.
 - **Formulas…** window with a plain explanation; Polish language; English is the default language.
 - Optimal assignment of borderline niches to minimise the maximum gap; optional separate tolerance for width and height (symmetric on all sides by default).
+- **Visualization…** window with 2D grouping map, smooth zoom/pan controls, group highlighting, and full trilingual localization.

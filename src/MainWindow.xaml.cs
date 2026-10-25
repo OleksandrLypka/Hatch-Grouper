@@ -13,6 +13,8 @@ namespace HatchGrouper
     public partial class MainWindow : Window
     {
         private List<GroupRow> _rows = new();
+        private List<NicheGroup> _lastGroups = new();
+        private Settings _lastSettings = new();
         private LengthUnit _inputUnit = LengthUnit.Cm;
         private LengthUnit _paramUnit = LengthUnit.Mm;
         private LengthUnit _displayUnit = LengthUnit.Cm;
@@ -65,6 +67,9 @@ namespace HatchGrouper
                 var groups = Grouper.Build(niches, settings);
                 CheckGroups(groups, settings);
                 SaveSettingsQuietly(settings);
+
+                _lastGroups = groups;
+                _lastSettings = settings;
 
                 _rows = groups.Select((g, i) => ToRow(g, i + 1, _displayUnit)).ToList();
                 ResultGrid.ItemsSource = _rows;
@@ -168,6 +173,22 @@ namespace HatchGrouper
             new HelpWindow(settings) { Owner = this }.ShowDialog();
         }
 
+        private void Visualizer_Click(object sender, RoutedEventArgs e)
+        {
+            if (_lastGroups.Count == 0)
+            {
+                Group_Click(sender, e);
+            }
+
+            if (_lastGroups.Count == 0)
+            {
+                MessageBox.Show(this, Loc.T("vis.empty"), Loc.T("vis.title"), MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            new VisualizerWindow(_lastGroups, _lastSettings) { Owner = this }.Show();
+        }
+
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
             var current = new Settings
@@ -215,6 +236,7 @@ namespace HatchGrouper
             {
                 // The old list was entered in another unit: the old result is no longer valid
                 _rows = new List<GroupRow>();
+                _lastGroups = new List<NicheGroup>();
                 ResultGrid.ItemsSource = null;
                 StatusText.Text = Loc.T("status.unitchanged");
             }
@@ -299,6 +321,7 @@ namespace HatchGrouper
             LapHLabel.Text = Loc.T("p.lap", parU);
 
             GroupButton.Content = Loc.T("btn.group");
+            VisualizerButton.Content = Loc.T("btn.visualize");
             OpenButton.Content = Loc.T("btn.open");
             SaveButton.Content = Loc.T("btn.save");
             ExportButton.Content = Loc.T("btn.export");

@@ -52,6 +52,7 @@ namespace HatchGrouper
             ["btn.export"] = ("Експорт CSV…", "Export CSV…", "Eksport CSV…"),
             ["btn.settings"] = ("Налаштування…", "Settings…", "Ustawienia…"),
             ["btn.help"] = ("Формули…", "Formulas…", "Wzory…"),
+            ["btn.visualize"] = ("Візуалізація…", "Visualization…", "Wizualizacja…"),
             ["btn.ok"] = ("OK", "OK", "OK"),
             ["btn.cancel"] = ("Скасувати", "Cancel", "Anuluj"),
             ["btn.close"] = ("Закрити", "Close", "Zamknij"),
@@ -143,6 +144,28 @@ namespace HatchGrouper
             // file dialogs
             ["filter.project"] = ("Проєкт (*.hatch.json)|*.hatch.json", "Project (*.hatch.json)|*.hatch.json", "Projekt (*.hatch.json)|*.hatch.json"),
             ["filter.csv"] = ("CSV (*.csv)|*.csv", "CSV (*.csv)|*.csv", "CSV (*.csv)|*.csv"),
+
+            // visualizer window
+            ["vis.title"] = ("Карта розташування ніш за групами", "Niche grouping map", "Mapa grupowania nisz"),
+            ["vis.width"] = ("Ширина ({0})", "Width ({0})", "Szerokość ({0})"),
+            ["vis.height"] = ("Висота ({0})", "Height ({0})", "Wysokość ({0})"),
+            ["vis.legend"] = ("Групи ніш", "Niche groups", "Grupy nisz"),
+            ["vis.group.title"] = ("Група {0}", "Group {0}", "Grupa {0}"),
+            ["vis.box.label"] = ("Ящик: {0}", "Box: {0}", "Skrzynka: {0}"),
+            ["vis.hatch.label"] = ("Люк: {0}", "Hatch: {0}", "Właz: {0}"),
+            ["vis.spread.label"] = ("Розкид: {0}", "Spread: {0}", "Rozrzut: {0}"),
+            ["vis.niches.label"] = ("Ніші: {0}", "Niches: {0}", "Nisze: {0}"),
+            ["vis.showall"] = ("Показати всі групи", "Show all groups", "Pokaż wszystkie grupy"),
+            ["vis.zoom.reset"] = ("Скинути вигляд", "Reset view", "Zresetuj widok"),
+            ["vis.hint"] = ("Коліщатко миші — масштаб • Затисніть ліву кнопку — переміщення",
+                            "Mouse wheel to zoom • Drag to pan",
+                            "Kółko myszy — zoom • Przeciągnij myszą — przesuwanie"),
+            ["vis.point.tooltip"] = ("Ніша: {0} × {1} {2}\nКількість: {3} шт\nПід'їзд(и): {4}\nГрупа №{5}",
+                                     "Niche: {0} × {1} {2}\nCount: {3} pcs\nEntrance(s): {4}\nGroup #{5}",
+                                     "Nisza: {0} × {1} {2}\nIlość: {3} szt.\nKlatka(-i): {4}\nGrupa #{5}"),
+            ["vis.empty"] = ("Спочатку натисніть «Групувати», щоб побудувати карту груп.",
+                             "Please click \"Group\" first to build the groups map.",
+                             "Najpierw naciśnij \"Grupuj\", aby zbudować mapę grup."),
 
             // help window: formulas and plain explanation
             ["help.title"] = ("Формули та пояснення", "Formulas and explanation", "Wzory i wyjaśnienia"),
