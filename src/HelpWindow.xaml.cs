@@ -1,3 +1,5 @@
+using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -23,11 +25,18 @@ namespace HatchGrouper
             AddFormula(Loc.T("help.formulas"));
 
             // The same formulas as in Models.cs (NicheGroup.Compute), with a sample niche of 840 x 890 mm
-            int boxW = 840 - 2 * s.GapMm, boxH = 890 - 2 * s.EffGapHMm;
-            int hatchW = boxW - 2 * s.HatchOffsetMm, hatchH = boxH - 2 * s.HatchOffsetMm;
+            double boxW = Math.Round(840 - 2 * (s.GapMm + s.EarMm), 2), boxH = Math.Round(890 - 2 * (s.EffGapHMm + s.EarMm), 2);
+            double trimW = Math.Round(boxW + 2 * s.TrimMm, 2), trimH = Math.Round(boxH + 2 * s.EffTrimHMm, 2);
+            double hatchW = Math.Round(trimW - s.HatchDiffWMm, 2), hatchH = Math.Round(trimH - s.HatchDiffHMm, 2);
             AddHeader(Loc.T("help.h.example"));
-            AddFormula(Loc.T("help.example", s.GapMm, s.TrimMm, s.MinLapMm, s.HatchOffsetMm,
-                             s.MaxGapWMm, s.ToleranceWMm, boxW, boxH, hatchW, hatchH));
+            AddFormula(Loc.T("help.example",
+                s.GapMm, s.TrimMm, s.MinLapMm,
+                s.HatchDiffWMm.ToString("0.#", CultureInfo.InvariantCulture),
+                s.MaxGapWMm, s.ToleranceWMm, boxW, boxH,
+                hatchW.ToString("0.#", CultureInfo.InvariantCulture),
+                hatchH.ToString("0.#", CultureInfo.InvariantCulture),
+                s.HatchDiffHMm.ToString("0.#", CultureInfo.InvariantCulture),
+                s.EarMm, trimW, trimH));
             if (s.ToleranceWMm < 0 || s.ToleranceHMm < 0)
                 AddText(Loc.T("help.example.negative"), Brushes.Firebrick);
 

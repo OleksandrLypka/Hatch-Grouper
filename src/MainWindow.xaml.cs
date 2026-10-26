@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Microsoft.Win32;
 
 namespace HatchGrouper
@@ -71,7 +72,17 @@ namespace HatchGrouper
                 _lastGroups = groups;
                 _lastSettings = settings;
 
+                var oldNotesByBox = _rows?.Where(r => !string.IsNullOrWhiteSpace(r.Note))
+                                          .ToDictionary(r => r.Box, r => r.Note) ?? new Dictionary<string, string>();
+                var oldNotesByNo = _rows?.Where(r => !string.IsNullOrWhiteSpace(r.Note))
+                                         .ToDictionary(r => r.No, r => r.Note) ?? new Dictionary<int, string>();
+
                 _rows = groups.Select((g, i) => ToRow(g, i + 1, _displayUnit)).ToList();
+                foreach (var row in _rows)
+                {
+                    if (oldNotesByBox.TryGetValue(row.Box, out var n)) row.Note = n;
+                    else if (oldNotesByNo.TryGetValue(row.No, out var n2)) row.Note = n2;
+                }
                 ResultGrid.ItemsSource = _rows;
 
                 var u = UnitHelper.Name(_displayUnit);
@@ -103,7 +114,9 @@ namespace HatchGrouper
                 var dlg = new SaveFileDialog { Filter = Loc.T("filter.project"), DefaultExt = ".hatch.json" };
                 if (dlg.ShowDialog() != true) return;
 
-                var data = new ProjectData { InputText = InputBox.Text, Settings = ReadSettings() };
+                var notes = _rows?.Where(r => !string.IsNullOrWhiteSpace(r.Note))
+                                 .ToDictionary(r => r.Box, r => r.Note) ?? new Dictionary<string, string>();
+                var data = new ProjectData { InputText = InputBox.Text, Settings = ReadSettings(), Notes = notes };
                 var options = new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
                 File.WriteAllText(dlg.FileName, JsonSerializer.Serialize(data, options), Encoding.UTF8);
                 StatusText.Text = Loc.T("status.saved", dlg.FileName);
@@ -129,6 +142,15 @@ namespace HatchGrouper
                 InputBox.Text = data.InputText;
                 ApplySettings(loaded);
                 Group_Click(sender, e);
+                if (data.Notes != null && data.Notes.Count > 0 && _rows != null)
+                {
+                    foreach (var row in _rows)
+                    {
+                        if (data.Notes.TryGetValue(row.Box, out var note))
+                            row.Note = note;
+                    }
+                    ResultGrid.Items.Refresh();
+                }
             }
             catch (Exception ex)
             {
@@ -152,7 +174,8 @@ namespace HatchGrouper
                     sb.AppendLine(string.Join(";", new[]
                     {
                         r.No.ToString(), r.Count.ToString(), Csv(r.Niche), Csv(r.Box),
-                        Csv(r.Hatch), Csv(r.MaxGap), Csv(r.Lap), Csv(r.Composition.Replace("\n", " / ")),
+                        Csv(r.WithTrim), Csv(r.Hatch), Csv(r.MaxGap), Csv(r.Lap),
+                        Csv(r.Note), Csv(r.Composition.Replace("\n", " / ")),
                     }));
                 }
                 File.WriteAllText(dlg.FileName, sb.ToString(), new UTF8Encoding(true));
@@ -187,6 +210,35 @@ namespace HatchGrouper
             }
 
             new VisualizerWindow(_lastGroups, _lastSettings) { Owner = this }.Show();
+        }
+
+        private void Extremes_Click(object sender, RoutedEventArgs e)
+        {
+            if (_lastGroups.Count == 0)
+            {
+                Group_Click(sender, e);
+            }
+
+            if (_lastGroups.Count == 0)
+            {
+                MessageBox.Show(this, Loc.T("ext.empty"), Loc.T("ext.title"), MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            int selectedIndex = ResultGrid.SelectedIndex >= 0 ? ResultGrid.SelectedIndex : 0;
+            new ExtremeCasesWindow(_lastGroups, _lastSettings, selectedIndex) { Owner = this }.Show();
+        }
+
+        private void ResultGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (ResultGrid.CurrentColumn != null && ResultGrid.CurrentColumn.Header?.ToString() == Loc.T("col.note"))
+                return;
+
+            if (ResultGrid.SelectedItem is GroupRow row && _lastGroups.Count > 0)
+            {
+                int groupIdx = Math.Clamp(row.No - 1, 0, _lastGroups.Count - 1);
+                new ExtremeCasesWindow(_lastGroups, _lastSettings, groupIdx) { Owner = this }.Show();
+            }
         }
 
         private void Settings_Click(object sender, RoutedEventArgs e)
@@ -254,14 +306,16 @@ namespace HatchGrouper
 
         private Settings ReadSettings()
         {
-            int gapW = ReadLength(GapBox, "name.gap");
-            int trimW = ReadLength(TrimBox, "name.trim");
-            int lapW = ReadLength(LapBox, "name.lap");
-            int hatch = ReadLength(HatchBox, "name.hatch");
+            double gapW = ReadLengthDouble(GapBox, "name.gap");
+            double trimW = ReadLengthDouble(TrimBox, "name.trim");
+            double lapW = ReadLengthDouble(LapBox, "name.lap");
+            double hatchDiffW = ReadLengthDouble(HatchDiffWBox, "name.hatch.w");
+            double hatchDiffH = ReadLengthDouble(HatchDiffHBox, "name.hatch.h");
+            double ear = ReadLengthDouble(EarBox, "name.ear");
 
-            int gapH = _separateTolerance ? ReadLength(GapHBox, "name.gap.h") : gapW;
-            int trimH = _separateTolerance ? ReadLength(TrimHBox, "name.trim.h") : trimW;
-            int lapH = _separateTolerance ? ReadLength(LapHBox, "name.lap.h") : lapW;
+            double gapH = _separateTolerance ? ReadLengthDouble(GapHBox, "name.gap.h") : gapW;
+            double trimH = _separateTolerance ? ReadLengthDouble(TrimHBox, "name.trim.h") : trimW;
+            double lapH = _separateTolerance ? ReadLengthDouble(LapHBox, "name.lap.h") : lapW;
 
             return new Settings
             {
@@ -273,7 +327,9 @@ namespace HatchGrouper
                 GapMm = gapW,
                 TrimMm = trimW,
                 MinLapMm = lapW,
-                HatchOffsetMm = hatch,
+                HatchDiffWMm = hatchDiffW,
+                HatchDiffHMm = hatchDiffH,
+                EarMm = ear,
                 GapHMm = gapH,
                 TrimHMm = trimH,
                 MinLapHMm = lapH,
@@ -290,7 +346,9 @@ namespace HatchGrouper
             GapBox.Text = UnitHelper.Format(s.GapMm, _paramUnit);
             TrimBox.Text = UnitHelper.Format(s.TrimMm, _paramUnit);
             LapBox.Text = UnitHelper.Format(s.MinLapMm, _paramUnit);
-            HatchBox.Text = UnitHelper.Format(s.HatchOffsetMm, _paramUnit);
+            HatchDiffWBox.Text = UnitHelper.Format(s.HatchDiffWMm, _paramUnit);
+            HatchDiffHBox.Text = UnitHelper.Format(s.HatchDiffHMm, _paramUnit);
+            EarBox.Text = UnitHelper.Format(s.EarMm, _paramUnit);
             GapHBox.Text = UnitHelper.Format(s.EffGapHMm, _paramUnit);
             TrimHBox.Text = UnitHelper.Format(s.EffTrimHMm, _paramUnit);
             LapHBox.Text = UnitHelper.Format(s.EffMinLapHMm, _paramUnit);
@@ -316,12 +374,14 @@ namespace HatchGrouper
             TrimLabel.Text = Loc.T("p.trim", parU);
             LapLabel.Text = Loc.T("p.lap", parU);
             HatchLabel.Text = Loc.T("p.hatch", parU);
+            EarLabel.Text = Loc.T("p.ear", parU);
             GapHLabel.Text = Loc.T("p.gap", parU);
             TrimHLabel.Text = Loc.T("p.trim", parU);
             LapHLabel.Text = Loc.T("p.lap", parU);
 
             GroupButton.Content = Loc.T("btn.group");
             VisualizerButton.Content = Loc.T("btn.visualize");
+            ExtremesButton.Content = Loc.T("btn.extremes");
             OpenButton.Content = Loc.T("btn.open");
             SaveButton.Content = Loc.T("btn.save");
             ExportButton.Content = Loc.T("btn.export");
@@ -332,10 +392,12 @@ namespace HatchGrouper
             ResultGrid.Columns[1].Header = Loc.T("col.count");
             ResultGrid.Columns[2].Header = Loc.T("col.niche", outU);
             ResultGrid.Columns[3].Header = Loc.T("col.box", outU);
-            ResultGrid.Columns[4].Header = Loc.T("col.hatch", outU);
-            ResultGrid.Columns[5].Header = Loc.T("col.maxgap", outU);
-            ResultGrid.Columns[6].Header = Loc.T("col.lap", outU);
-            ResultGrid.Columns[7].Header = Loc.T("col.comp", outU);
+            ResultGrid.Columns[4].Header = Loc.T("col.trim", outU);
+            ResultGrid.Columns[5].Header = Loc.T("col.hatch", outU);
+            ResultGrid.Columns[6].Header = Loc.T("col.maxgap", outU);
+            ResultGrid.Columns[7].Header = Loc.T("col.lap", outU);
+            ResultGrid.Columns[8].Header = Loc.T("col.note");
+            ResultGrid.Columns[9].Header = Loc.T("col.comp", outU);
         }
 
         /// <summary>Saves the current values on exit; invalid fields are skipped silently.</summary>
@@ -351,21 +413,21 @@ namespace HatchGrouper
             catch { }
         }
 
-        /// <summary>Parses a non-negative length typed in <paramref name="unit"/>; the result is whole millimetres.</summary>
-        private static bool TryParseLength(string text, LengthUnit unit, out int mm)
+        /// <summary>Parses a non-negative length allowing tenths of a millimetre (e.g. 6.5 or 131.6 mm).</summary>
+        private static bool TryParseLengthDouble(string text, LengthUnit unit, out double mm)
         {
             mm = 0;
             if (!double.TryParse(text.Trim().Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out var v)
                 || v < 0 || v > 1_000_000)
                 return false;
             var raw = v * (unit == LengthUnit.Cm ? 10 : 1);
-            mm = (int)Math.Round(raw);
-            return Math.Abs(raw - mm) < 1e-6; // 0.55 cm would be 5.5 mm: not allowed
+            mm = Math.Round(raw, 1);
+            return Math.Abs(raw - mm) < 1e-6;
         }
 
-        private int ReadLength(TextBox box, string nameKey)
+        private double ReadLengthDouble(TextBox box, string nameKey)
         {
-            if (TryParseLength(box.Text, _paramUnit, out int mm)) return mm;
+            if (TryParseLengthDouble(box.Text, _paramUnit, out double mm)) return mm;
 
             var text = box.Text.Trim();
             box.Focus();
@@ -377,8 +439,8 @@ namespace HatchGrouper
 
         private void ConvertParamBoxes(LengthUnit from, LengthUnit to)
         {
-            foreach (var box in new[] { GapBox, TrimBox, LapBox, HatchBox, GapHBox, TrimHBox, LapHBox })
-                if (TryParseLength(box.Text, from, out int mm))
+            foreach (var box in new[] { GapBox, TrimBox, LapBox, HatchDiffWBox, HatchDiffHBox, EarBox, GapHBox, TrimHBox, LapHBox })
+                if (TryParseLengthDouble(box.Text, from, out double mm))
                     box.Text = UnitHelper.Format(mm, to);
         }
 
@@ -387,10 +449,11 @@ namespace HatchGrouper
         {
             foreach (var g in groups)
             {
-                if (g.HatchW > 0 && g.HatchH > 0) continue;
+                if (g.HatchW > 0 && g.HatchH > 0 && g.BoxW > 0 && g.BoxH > 0) continue;
                 throw new UserException(Loc.T("err.toosmall",
                     UnitHelper.Format(g.MinW, s.InputUnit), UnitHelper.Format(g.MinH, s.InputUnit),
-                    UnitHelper.Name(s.InputUnit), Math.Max(s.GapMm, s.EffGapHMm), s.HatchOffsetMm));
+                    UnitHelper.Name(s.InputUnit), Math.Max(s.GapMm, s.EffGapHMm) + s.EarMm,
+                    $"{s.HatchDiffWMm.ToString("0.#", CultureInfo.InvariantCulture)} / {s.HatchDiffHMm.ToString("0.#", CultureInfo.InvariantCulture)}"));
             }
         }
 
@@ -421,17 +484,15 @@ namespace HatchGrouper
 
         private static GroupRow ToRow(NicheGroup g, int no, LengthUnit unit)
         {
-            // Composition: one line per entrance, equal sizes are collapsed into "size (N шт)"
-            var lines = g.Niches
-                .GroupBy(n => n.Entrance)
-                .OrderBy(e => e.Key)
-                .Select(e =>
+            // Compact composition: equal sizes are collapsed into "WxH [1.1, 2.5]"
+            var items = g.Niches
+                .GroupBy(n => (n.WidthMm, n.HeightMm))
+                .OrderBy(s => s.Key.WidthMm).ThenBy(s => s.Key.HeightMm)
+                .Select(s =>
                 {
-                    var sizes = e.GroupBy(n => (n.WidthMm, n.HeightMm))
-                                 .OrderBy(s => s.Key.WidthMm).ThenBy(s => s.Key.HeightMm)
-                                 .Select(s => UnitHelper.Format(s.Key.WidthMm, unit) + "×" + UnitHelper.Format(s.Key.HeightMm, unit) +
-                                              (s.Count() > 1 ? Loc.T("comp.pcs", s.Count()) : ""));
-                    return Loc.T("comp.entrance", e.Key) + string.Join(", ", sizes);
+                    var ids = s.OrderBy(n => n.Entrance).ThenBy(n => n.NicheNo)
+                               .Select(n => $"{n.Entrance}.{n.NicheNo}");
+                    return $"{UnitHelper.Format(s.Key.WidthMm, unit)}×{UnitHelper.Format(s.Key.HeightMm, unit)} [{string.Join(", ", ids)}]";
                 });
 
             return new GroupRow
@@ -440,10 +501,12 @@ namespace HatchGrouper
                 Count = g.Niches.Count,
                 Niche = Range(g.MinW, g.MaxW, unit) + " × " + Range(g.MinH, g.MaxH, unit),
                 Box = $"{UnitHelper.Format(g.BoxW, unit)} × {UnitHelper.Format(g.BoxH, unit)}",
+                WithTrim = $"{UnitHelper.Format(g.TrimW, unit)} × {UnitHelper.Format(g.TrimH, unit)}",
                 Hatch = $"{UnitHelper.Format(g.HatchW, unit)} × {UnitHelper.Format(g.HatchH, unit)}",
                 MaxGap = UnitHelper.Format(g.MaxGapMm, unit),
                 Lap = UnitHelper.Format(g.LapMm, unit),
-                Composition = string.Join("\n", lines),
+                Note = "",
+                Composition = string.Join(", ", items),
             };
         }
 

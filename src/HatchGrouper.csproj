@@ -7,7 +7,7 @@
     <Nullable>disable</Nullable>
     <RootNamespace>HatchGrouper</RootNamespace>
     <AssemblyName>HatchGrouper</AssemblyName>
-    <Version>0.1</Version>
+    <Version>0.2-beta</Version>
     <Authors>Oleksandr Lypka</Authors>
     <Company>Oleksandr Lypka</Company>
     <Product>HatchGrouper</Product>

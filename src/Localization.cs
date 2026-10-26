@@ -36,13 +36,16 @@ namespace HatchGrouper
             ["p.gap"] = ("Зазор, {0}:", "Gap, {0}:", "Luz, {0}:"),
             ["p.trim"] = ("Лиштва, {0}:", "Trim, {0}:", "Listwa, {0}:"),
             ["p.lap"] = ("Мін. напуск, {0}:", "Min. lap, {0}:", "Min. zakład, {0}:"),
-            ["p.hatch"] = ("Люк менший за ящик, {0}/бік:", "Hatch smaller than box, {0}/side:", "Właz mniejszy od skrzynki, {0}/stronę:"),
+            ["p.hatch"] = ("Лиштва − люк (Ш/В), {0}:", "Trim − hatch (W/H), {0}:", "Listwa − właz (Sz/W), {0}:"),
+            ["p.ear"] = ("Вушка, {0}/бік:", "Ears, {0}/side:", "Uszka, {0}/stronę:"),
             ["p.width.prefix"] = ("Ш (боки) —", "W (sides) —", "Szer. (boki) —"),
             ["p.height.prefix"] = ("В (верх/низ) —", "H (top/bottom) —", "Wys. (góra/dół) —"),
             ["name.gap"] = ("Зазор", "Gap", "Luz"),
             ["name.trim"] = ("Лиштва", "Trim", "Listwa"),
             ["name.lap"] = ("Мін. напуск", "Min. lap", "Min. zakład"),
-            ["name.hatch"] = ("Люк менший за ящик", "Hatch smaller than box", "Właz mniejszy od skrzynki"),
+            ["name.hatch.w"] = ("Люк менший за лиштву (Ш)", "Hatch smaller than trim (W)", "Właz mniejszy od listwy (Szer.)"),
+            ["name.hatch.h"] = ("Люк менший за лиштву (В)", "Hatch smaller than trim (H)", "Właz mniejszy od listwy (Wys.)"),
+            ["name.ear"] = ("Плоскі вушка короба", "Box mounting tabs/ears", "Płaskie uszka skrzynki"),
             ["name.gap.h"] = ("Зазор (В)", "Gap (H)", "Luz (Wys.)"),
             ["name.trim.h"] = ("Лиштва (В)", "Trim (H)", "Listwa (Wys.)"),
             ["name.lap.h"] = ("Мін. напуск (В)", "Min. lap (H)", "Min. zakład (Wys.)"),
@@ -53,6 +56,7 @@ namespace HatchGrouper
             ["btn.settings"] = ("Налаштування…", "Settings…", "Ustawienia…"),
             ["btn.help"] = ("Формули…", "Formulas…", "Wzory…"),
             ["btn.visualize"] = ("Візуалізація…", "Visualization…", "Wizualizacja…"),
+            ["btn.extremes"] = ("Крайні випадки…", "Extreme cases…", "Przypadki skrajne…"),
             ["btn.ok"] = ("OK", "OK", "OK"),
             ["btn.cancel"] = ("Скасувати", "Cancel", "Anuluj"),
             ["btn.close"] = ("Закрити", "Close", "Zamknij"),
@@ -60,16 +64,19 @@ namespace HatchGrouper
             // result table
             ["col.no"] = ("№", "No.", "Nr"),
             ["col.count"] = ("шт", "pcs", "szt."),
-            ["col.niche"] = ("Ніша, {0} (Ш × В)", "Niche, {0} (W × H)", "Nisza, {0} (Szer. × Wys.)"),
-            ["col.box"] = ("Ящик, {0}", "Box, {0}", "Skrzynka, {0}"),
+            ["col.niche"] = ("Ніша, {0}", "Niche, {0}", "Nisza, {0}"),
+            ["col.box"] = ("Короб, {0}", "Box, {0}", "Skrzynka, {0}"),
+            ["col.trim"] = ("З лиштвою, {0}", "With trim, {0}", "Z listwą, {0}"),
             ["col.hatch"] = ("Люк, {0}", "Hatch, {0}", "Właz, {0}"),
-            ["col.maxgap"] = ("Макс. зазор, {0}", "Max gap, {0}", "Maks. luz, {0}"),
-            ["col.lap"] = ("Мін. напуск, {0}", "Min. lap, {0}", "Min. zakład, {0}"),
+            ["col.maxgap"] = ("Зазор, {0}", "Max gap, {0}", "Maks. luz, {0}"),
+            ["col.lap"] = ("Напуск, {0}", "Min. lap, {0}", "Min. zakład, {0}"),
+            ["col.note"] = ("Шифр", "Code", "Kod"),
             ["col.comp"] = ("Склад (ніші, {0})", "Composition (niches, {0})", "Skład (nisze, {0})"),
-            ["csv.header"] = ("№;шт;Ніша {0};Ящик {0};Люк {0};Макс. зазор {0};Мін. напуск {0};Склад",
-                              "No.;pcs;Niche {0};Box {0};Hatch {0};Max gap {0};Min. lap {0};Composition",
-                              "Nr;szt.;Nisza {0};Skrzynka {0};Właz {0};Maks. luz {0};Min. zakład {0};Skład"),
+            ["csv.header"] = ("№;шт;Ніша {0};Короб {0};З лиштвою {0};Люк {0};Макс. зазор {0};Мін. напуск {0};Шифр / Примітка;Склад",
+                              "No.;pcs;Niche {0};Box {0};With trim {0};Hatch {0};Max gap {0};Min. lap {0};Code / Note;Composition",
+                              "Nr;szt.;Nisza {0};Skrzynka {0};Z listwą {0};Właz {0};Maks. luz {0};Min. zakład {0};Kod / Uwaga;Skład"),
             ["comp.entrance"] = ("{0} під’їзд: ", "Entrance {0}: ", "Klatka {0}: "),
+            ["comp.lines"] = ("[{0}]", "[{0}]", "[{0}]"),
             ["comp.pcs"] = (" ({0} шт)", " ({0} pcs)", " ({0} szt.)"),
             ["example.entrance"] = ("({0} під’їзд)", "({0} entrance)", "({0} klatka)"),
 
@@ -77,8 +84,8 @@ namespace HatchGrouper
             ["set.title"] = ("Налаштування", "Settings", "Ustawienia"),
             ["set.units"] = ("Одиниці виміру", "Units of measurement", "Jednostki miary"),
             ["set.input"] = ("Розміри ніш у списку:", "Niche sizes in the list:", "Wymiary nisz na liście:"),
-            ["set.params"] = ("Параметри (зазор, лиштва, напуск, відступ люка):", "Parameters (gap, trim, lap, hatch offset):",
-                              "Parametry (luz, listwa, zakład, odsunięcie włazu):"),
+            ["set.params"] = ("Параметри (зазор, лиштва, напуск, люк, зазор люка):", "Parameters (gap, trim, lap, hatch offset, clearance):",
+                              "Parametry (luz, listwa, zakład, odsunięcie włazu, luz włazu):"),
             ["set.display"] = ("Розміри в таблиці результату:", "Sizes in the result table:", "Wymiary w tabeli wyników:"),
             ["set.tolerance"] = ("Допуск розкиду:", "Spread tolerance:", "Tolerancja rozrzutu:"),
             ["set.tol.sym"] = ("Симетричний (з усіх сторін)", "Symmetric (all sides)", "Symetryczna (ze wszystkich stron)"),
@@ -118,11 +125,12 @@ namespace HatchGrouper
             ["err.empty"] = ("Список ніш порожній.", "The niche list is empty.", "Lista nisz jest pusta."),
             ["err.emptyfile"] = ("Файл порожній або не є проєктом цієї програми.", "The file is empty or is not a project of this program.",
                                  "Plik jest pusty lub nie jest projektem tego programu."),
-            ["err.field.mm"] = ("Поле «{0}» має містити невід’ємне ціле число (мм).", "Field \"{0}\" must contain a non-negative whole number (mm).",
-                                "Pole \"{0}\" musi zawierać nieujemną liczbę całkowitą (mm)."),
-            ["err.field.cm"] = ("Поле «{0}» має містити невід’ємне число в см (з точністю до 0,1 см, наприклад 0,5).",
-                                "Field \"{0}\" must contain a non-negative number in cm (precision 0.1 cm, for example 0.5).",
-                                "Pole \"{0}\" musi zawierać nieujemną liczbę w cm (z dokładnością do 0,1 cm, na przykład 0,5)."),
+            ["err.field.mm"] = ("Поле «{0}» має містити невід’ємне число в мм (з точністю до 0,1 мм, наприклад 6,5 або 10).",
+                                "Field \"{0}\" must contain a non-negative number in mm (precision 0.1 mm, e.g. 6.5 or 10).",
+                                "Pole \"{0}\" musi zawierać nieujemną liczbę w mm (z dokładnością do 0,1 mm, np. 6,5 lub 10)."),
+            ["err.field.cm"] = ("Поле «{0}» має містити невід’ємне число в см (з точністю до 0,01 см, наприклад 0,65).",
+                                "Field \"{0}\" must contain a non-negative number in cm (precision 0.01 cm, e.g. 0.65).",
+                                "Pole \"{0}\" musi zawierać nieujemną liczbę w cm (z dokładnością do 0,01 cm, np. 0,65)."),
             ["err.field.empty"] = ("Зараз поле порожнє.", "The field is empty now.", "Pole jest teraz puste."),
             ["err.field.now"] = ("Зараз там: «{0}».", "It now contains: \"{0}\".", "Teraz jest tam: \"{0}\"."),
             ["err.tolerance"] = ("Не можна згрупувати: допуск від’ємний (лиштва {0} − мін. напуск {1} = {2} мм, а зазор {3} мм більший).\nЗбільште лиштву або зменшіть мін. напуск чи зазор.",
@@ -167,6 +175,61 @@ namespace HatchGrouper
                              "Please click \"Group\" first to build the groups map.",
                              "Najpierw naciśnij \"Grupuj\", aby zbudować mapę grup."),
 
+            // extreme cases window
+            ["ext.title"] = ("Аналіз зазорів та крайні випадки", "Gap analysis and extreme cases", "Analiza luzów i przypadki skrajne"),
+            ["ext.group.label"] = ("Група:", "Group:", "Grupa:"),
+            ["ext.case.label"] = ("Ніша для перевірки:", "Niche to check:", "Nisza do sprawdzenia:"),
+            ["ext.case.smallest"] = ("⭐ Найменша ніша {0} (вхід короба)", "⭐ Smallest niche {0} (box fit)", "⭐ Najmniejsza nisza {0} (wejście skrzynki)"),
+            ["ext.case.narrowest"] = ("⭐ Найвужча ніша {0} (вхід по ширині)", "⭐ Narrowest niche {0} (box fit by width)", "⭐ Najwęższa nisza {0} (wejście skrzynki na szerokość)"),
+            ["ext.case.lowest"] = ("⭐ Найнижча ніша {0} (вхід по висоті)", "⭐ Lowest niche {0} (box fit by height)", "⭐ Najniższa nisza {0} (wejście skrzynki na wysokość)"),
+            ["ext.case.largest"] = ("⭐ Найбільша ніша {0} (напуск лиштви)", "⭐ Largest niche {0} (trim lap)", "⭐ Największa nisza {0} (zakład listwy)"),
+            ["ext.case.widest"] = ("⭐ Найширша ніша {0} (напуск по ширині)", "⭐ Widest niche {0} (trim lap by width)", "⭐ Najszersza nisza {0} (zakład listwy na szerokość)"),
+            ["ext.case.tallest"] = ("⭐ Найвища ніша {0} (напуск по висоті)", "⭐ Tallest niche {0} (trim lap by height)", "⭐ Najwyższa nisza {0} (zakład listwy na wysokość)"),
+            ["ext.case.envelope.min"] = ("📐 Зведений мінімум {0} (Min Ш × Min В)", "📐 Envelope minimum {0} (Min W × Min H)", "📐 Zbiorcze minimum {0} (Min Sz × Min W)"),
+            ["ext.case.envelope.max"] = ("📐 Зведений максимум {0} (Max Ш × Max В)", "📐 Envelope maximum {0} (Max W × Max H)", "📐 Zbiorcze maksimum {0} (Max Sz × Max W)"),
+            ["ext.case.other"] = ("Ніша {0}", "Niche {0}", "Nisza {0}"),
+            ["ext.h.dims"] = ("Розраховані розміри ({0})", "Calculated dimensions ({0})", "Obliczone wymiary ({0})"),
+            ["ext.h.gaps"] = ("Зазори та напуски ({0})", "Gaps and laps ({0})", "Luzy i zakłady ({0})"),
+            ["ext.h.summary"] = ("Рекомендації та висновок", "Recommendations & summary", "Rekomendacje i podsumowanie"),
+            ["ext.lbl.niche"] = ("Ніша в стіні:", "Wall niche:", "Nisza w ścianie:"),
+            ["ext.lbl.box"] = ("Короб:", "Box body:", "Skrzynka:"),
+            ["ext.lbl.boxears"] = ("Короб з вушками (+{0} {1}/бік):", "Box with ears (+{0} {1}/side):", "Skrzynka z uszkami (+{0} {1}/stronę):"),
+            ["ext.lbl.trim"] = ("Розмір з лиштвою:", "Size with trim:", "Rozmiar z listwą:"),
+            ["ext.lbl.hatch"] = ("Люк (дверцята):", "Hatch (door):", "Właz (drzwiczki):"),
+            ["ext.lbl.gapear"] = ("Зазор до вушка:", "Gap to ear:", "Luz do uszka:"),
+            ["ext.lbl.gapbody"] = ("Зазор до стінки короба:", "Gap to box body:", "Luz do ścianki skrzynki:"),
+            ["ext.lbl.lap"] = ("Напуск лиштви на стіну:", "Trim lap on wall:", "Zakład listwy na ścianę:"),
+            ["ext.lbl.hatchclr"] = ("Люк менший за лиштву:", "Hatch smaller than trim:", "Właz mniejszy od listwy:"),
+            ["ext.rec.smallest"] = ("Найменша ніша групи (критичний випадок на вхід короба):\n• Чистий зазор до вушок становить {0} {1} (до стінки короба: {2} {1}).\n• Короб гарантовано вільно входить у нішу без заклинювання.",
+                                    "Smallest niche of the group (critical for box fit):\n• Clear gap to ears is {0} {1} (to box body: {2} {1}).\n• The box is guaranteed to fit into the niche without jamming.",
+                                    "Najmniejsza nisza w grupie (krytyczna dla wejścia skrzynki):\n• Czysty luz do uszek wynosi {0} {1} (do ścianki skrzynki: {2} {1}).\n• Skrzynka gwarantowanie mieści się w niszy bez klinowania."),
+            ["ext.rec.narrowest"] = ("Найвужча ніша групи (критичний випадок на вхід короба по ширині):\n• Чистий зазор до бічних вушок становить {0} {1} (до стінки короба: {2} {1}).\n• Короб гарантовано вільно входить по ширині.",
+                                     "Narrowest niche of the group (critical for horizontal box fit):\n• Clear gap to side ears is {0} {1} (to box body: {2} {1}).\n• The box is guaranteed to fit horizontally.",
+                                     "Najwęższa nisza w grupie (krytyczna dla wejścia skrzynki na szerokość):\n• Czysty luz do bocznych uszek wynosi {0} {1} (do ścianki skrzynki: {2} {1}).\n• Skrzynka gwarantowanie mieści się na szerokość."),
+            ["ext.rec.lowest"] = ("Найнижча ніша групи (критичний випадок на вхід короба по висоті):\n• Чистий зазор до верхнього/нижнього вушка становить {0} {1} (до стінки короба: {2} {1}).\n• Короб гарантовано вільно входить по висоті.",
+                                  "Lowest niche of the group (critical for vertical box fit):\n• Clear gap to top/bottom ears is {0} {1} (to box body: {2} {1}).\n• The box is guaranteed to fit vertically.",
+                                  "Najniższa nisza w grupie (krytyczna dla wejścia skrzynki na wysokość):\n• Czysty luz do górnego/dolnego uszka wynosi {0} {1} (do ścianki skrzynki: {2} {1}).\n• Skrzynka gwarantowanie mieści się na wysokość."),
+            ["ext.rec.largest"] = ("Найбільша ніша групи (критичний випадок на перекриття щілини):\n• Напуск лиштви на стіну становить {0} {1} (норма: від {2} {1}).\n• Декоративна лиштва надійно перекриває монтажний зазор.",
+                                   "Largest niche of the group (critical for trim lap):\n• Trim lap on the wall is {0} {1} (required: min {2} {1}).\n• The decorative trim reliably covers the mounting gap.",
+                                   "Największa nisza w grupie (krytyczna dla zakładu listwy):\n• Zakład listwy na ścianę wynosi {0} {1} (norma: od {2} {1}).\n• Ozdobna listwa niezawodnie zakrywa szczelinę montażową."),
+            ["ext.rec.widest"] = ("Найширша ніша групи (критичний випадок на напуск лиштви по ширині):\n• Напуск бічної лиштви на стіну становить {0} {1} (норма: від {2} {1}).\n• Декоративна лиштва надійно перекриває монтажний зазор по ширині.",
+                                  "Widest niche of the group (critical for width trim lap):\n• Side trim lap on the wall is {0} {1} (required: min {2} {1}).\n• The decorative trim reliably covers the horizontal mounting gap.",
+                                  "Najszersza nisza w grupie (krytyczna dla zakładu listwy na szerokość):\n• Zakład bocznej listwy na ścianę wynosi {0} {1} (norma: od {2} {1}).\n• Ozdobna listwa niezawodnie zakrywa szczelinę na szerokość."),
+            ["ext.rec.tallest"] = ("Найвища ніша групи (критичний випадок на напуск лиштви по висоті):\n• Напуск верхньої/нижньої лиштви на стіну становить {0} {1} (норма: від {2} {1}).\n• Декоративна лиштва надійно перекриває монтажний зазор по висоті.",
+                                   "Tallest niche of the group (critical for height trim lap):\n• Top/bottom trim lap on the wall is {0} {1} (required: min {2} {1}).\n• The decorative trim reliably covers the vertical mounting gap.",
+                                   "Najwyższa nisza w grupie (krytyczna dla zakładu listwy na wysokość):\n• Zakład górnej/dolnej listwy na ścianę wynosi {0} {1} (norma: od {2} {1}).\n• Ozdobna listwa niezawodnie zakrywa szczelinę na wysokość."),
+            ["ext.rec.conclusion"] = ("💡 Висновок: критичні випадки (найвужча, найнижча, найширша та найвища ніші) повністю відповідають вимогам. Усі інші ніші цієї групи гарантовано підходять — тестувати кожну окремо не потрібно.",
+                                      "💡 Conclusion: critical cases (narrowest, lowest, widest, and tallest niches) fully meet all requirements. All other niches in this group are guaranteed to fit — testing each one is unnecessary.",
+                                      "💡 Wniosek: przypadki krytyczne (najwęższa, najniższa, najszersza i najwyższa nisza) w pełni spełniają wymagania. Wszystkie pozostałe nisze w tej grupie na pewno pasują — nie trzeba testować każdej z osobna."),
+            ["ext.legend.wall"] = ("Стіна ніші", "Niche wall", "Ściana niszy"),
+            ["ext.legend.trim"] = ("Лиштва", "Trim", "Listwa"),
+            ["ext.legend.box"] = ("Короб", "Box body", "Skrzynka"),
+            ["ext.legend.ears"] = ("Вушка (+{0} {1})", "Tabs (+{0} {1})", "Uszka (+{0} {1})"),
+            ["ext.legend.hatch"] = ("Люк", "Hatch", "Właz"),
+            ["ext.empty"] = ("Спочатку натисніть «Групувати», щоб виконати аналіз груп.",
+                             "Please click \"Group\" first to perform groups analysis.",
+                             "Najpierw naciśnij \"Grupuj\", aby wykonać analizę grup."),
+
             // help window: formulas and plain explanation
             ["help.title"] = ("Формули та пояснення", "Formulas and explanation", "Wzory i wyjaśnienia"),
 
@@ -181,18 +244,21 @@ namespace HatchGrouper
 
             ["help.h.params"] = ("Параметри простими словами", "Parameters in plain words", "Parametry prostymi słowami"),
             ["help.params"] = (
-                "• Зазор — вільний простір між ящиком і стінками ніші з кожного боку (щоб ящик увійшов у нішу).\n" +
-                "• Лиштва — на скільки декоративна накладка виступає за межі ящика з кожного боку.\n" +
+                "• Зазор — вільний простір між коробом і стінками ніші з кожного боку (щоб короб увійшов у нішу).\n" +
+                "• Вушка — плоскі монтажні вушка зверху, знизу і по бокам короба (за замовчуванням 1 мм на сторону, можна 0).\n" +
+                "• Лиштва — на скільки декоративна накладка виступає за межі короба з кожного боку.\n" +
                 "• Мін. напуск — мінімум, на скільки лиштва має заходити на стіну навколо ніші, щоб закрити щілину.\n" +
-                "• Люк менший за ящик — на скільки люк менший за ящик з кожного боку.",
+                "• Люк менший за лиштву (Ш / В) — на скільки ширина та висота люка менші за зовнішній габарит лиштви (за замовчуванням 131,6 та 131,2 мм, сюди вже входять зазори на відкривання).",
                 "• Gap — free space between the box and the niche walls on each side (so that the box fits into the niche).\n" +
+                "• Ears — flat mounting tabs on top, bottom and sides of the box (default 1 mm per side, 0 allowed).\n" +
                 "• Trim — how far the decorative trim sticks out beyond the box on each side.\n" +
                 "• Min. lap — the minimum the trim must overlap the wall around the niche to hide the gap.\n" +
-                "• Hatch smaller than box — how much smaller the hatch is than the box on each side.",
+                "• Hatch smaller than trim (W / H) — how much smaller the hatch width and height are than the outer trim dimensions (default 131.6 and 131.2 mm, including opening clearance).",
                 "• Luz — wolna przestrzeń między skrzynką a ściankami niszy z każdej strony (aby skrzynka weszła do niszy).\n" +
+                "• Uszka — płaskie uszka montażowe na górze, dole i bokach skrzynki (domyślnie 1 mm na stronę, dopuszczalne 0).\n" +
                 "• Listwa — o ile ozdobna listwa wystaje poza skrzynkę z każdej strony.\n" +
                 "• Min. zakład — minimum, o jakie listwa musi nachodzić na ścianę wokół niszy, aby zakryć szczelinę.\n" +
-                "• Właz mniejszy od skrzynki — o ile właz jest mniejszy od skrzynki z każdej strony."),
+                "• Właz mniejszy od listwy (Sz / W) — o ile szerokość i wysokość włazu są mniejsze od zewnętrznego wymiaru z listwą (domyślnie 131,6 i 131,2 mm, wraz z luzem na otwieranie)."),
 
             ["help.h.how"] = ("Як групуються ніші", "How niches are grouped", "Jak grupowane są nisze"),
             ["help.how"] = (
@@ -212,44 +278,50 @@ namespace HatchGrouper
             ["help.h.formulas"] = ("Формули (усі розміри в мм)", "Formulas (all sizes in mm)", "Wzory (wszystkie wymiary w mm)"),
             ["help.formulas"] = (
                 "макс. зазор з одного боку  = лиштва − мін. напуск\n" +
-                "допуск розкиду (Ш і В)     = 2 × (макс. зазор − зазор)\n" +
-                "розмір ящика               = найменша ніша групи − 2 × зазор\n" +
-                "розмір люка                = розмір ящика − 2 × (люк менший за ящик)\n" +
-                "зазор з одного боку        = зазор + (найбільша ніша − найменша ніша) / 2\n" +
+                "допуск розкиду (Ш і В)     = 2 × (макс. зазор − (зазор + вушка))\n" +
+                "розмір короба              = найменша ніша групи − 2 × (зазор + вушка)\n" +
+                "розмір з лиштвою           = розмір короба + 2 × лиштва\n" +
+                "розмір люка (Ш × В)        = (ширина з лиштвою − відступ Ш) × (висота з лиштвою − відступ В)\n" +
+                "зазор з одного боку        = (зазор + вушка) + (найбільша ніша − найменша ніша) / 2\n" +
                 "напуск лиштви на стіну     = лиштва − зазор з одного боку",
                 "max gap per side           = trim − min. lap\n" +
-                "spread tolerance (W and H) = 2 × (max gap − gap)\n" +
-                "box size                   = smallest niche of the group − 2 × gap\n" +
-                "hatch size                 = box size − 2 × (hatch smaller than box)\n" +
-                "gap per side               = gap + (largest niche − smallest niche) / 2\n" +
+                "spread tolerance (W and H) = 2 × (max gap − (gap + ears))\n" +
+                "box size                   = smallest niche of the group − 2 × (gap + ears)\n" +
+                "size with trim             = box size + 2 × trim\n" +
+                "hatch size (W × H)         = (trim width − diff W) × (trim height − diff H)\n" +
+                "gap per side               = (gap + ears) + (largest niche − smallest niche) / 2\n" +
                 "trim lap on the wall       = trim − gap per side",
                 "maks. luz z jednej strony  = listwa − min. zakład\n" +
-                "tolerancja rozrzutu (Sz,W) = 2 × (maks. luz − luz)\n" +
-                "rozmiar skrzynki           = najmniejsza nisza w grupie − 2 × luz\n" +
-                "rozmiar włazu              = rozmiar skrzynki − 2 × (właz mniejszy od skrzynki)\n" +
-                "luz z jednej strony        = luz + (największa nisza − najmniejsza nisza) / 2\n" +
+                "tolerancja rozrzutu (Sz,W) = 2 × (maks. luz − (luz + uszka))\n" +
+                "rozmiar skrzynki           = najmniejsza nisza w grupie − 2 × (luz + uszka)\n" +
+                "rozmiar z listwą           = rozmiar skrzynki + 2 × listwa\n" +
+                "rozmiar włazu (Sz × W)     = (szer. z listwą − różnica Sz) × (wys. z listwą − różnica W)\n" +
+                "luz z jednej strony        = (luz + uszka) + (największa nisza − najmniejsza nisza) / 2\n" +
                 "zakład listwy na ścianie   = listwa − luz z jednej strony"),
 
             ["help.h.example"] = ("Приклад з вашими поточними числами (мм)", "Example with your current numbers (mm)", "Przykład z Twoimi aktualnymi liczbami (mm)"),
             ["help.example"] = (
-                "Зазор {0}, лиштва {1}, мін. напуск {2}, люк менший на {3}.\n" +
+                "Зазор {0}, вушка {11}, лиштва {1}, мін. напуск {2}, люк менший за лиштву на {3} / {10}.\n" +
                 "макс. зазор = {1} − {2} = {4}\n" +
-                "допуск розкиду = 2 × ({4} − {0}) = {5}\n" +
+                "допуск розкиду = 2 × ({4} − ({0}+{11})) = {5}\n" +
                 "Нехай найменша ніша групи 840 × 890:\n" +
-                "ящик = (840 − 2×{0}) × (890 − 2×{0}) = {6} × {7}\n" +
-                "люк = ({6} − 2×{3}) × ({7} − 2×{3}) = {8} × {9}",
-                "Gap {0}, trim {1}, min. lap {2}, hatch smaller by {3}.\n" +
+                "короб = (840 − 2×({0}+{11})) × (890 − 2×({0}+{11})) = {6} × {7}\n" +
+                "з лиштвою = ({6} + 2×{1}) × ({7} + 2×{1}) = {12} × {13}\n" +
+                "люк = ({12} − {3}) × ({13} − {10}) = {8} × {9}",
+                "Gap {0}, ears {11}, trim {1}, min. lap {2}, hatch smaller than trim by {3} / {10}.\n" +
                 "max gap = {1} − {2} = {4}\n" +
-                "spread tolerance = 2 × ({4} − {0}) = {5}\n" +
+                "spread tolerance = 2 × ({4} − ({0}+{11})) = {5}\n" +
                 "Let the smallest niche of a group be 840 × 890:\n" +
-                "box = (840 − 2×{0}) × (890 − 2×{0}) = {6} × {7}\n" +
-                "hatch = ({6} − 2×{3}) × ({7} − 2×{3}) = {8} × {9}",
-                "Luz {0}, listwa {1}, min. zakład {2}, właz mniejszy o {3}.\n" +
+                "box = (840 − 2×({0}+{11})) × (890 − 2×({0}+{11})) = {6} × {7}\n" +
+                "with trim = ({6} + 2×{1}) × ({7} + 2×{1}) = {12} × {13}\n" +
+                "hatch = ({12} − {3}) × ({13} − {10}) = {8} × {9}",
+                "Luz {0}, uszka {11}, listwa {1}, min. zakład {2}, właz mniejszy od listwy o {3} / {10}.\n" +
                 "maks. luz = {1} − {2} = {4}\n" +
-                "tolerancja rozrzutu = 2 × ({4} − {0}) = {5}\n" +
+                "tolerancja rozrzutu = 2 × ({4} − ({0}+{11})) = {5}\n" +
                 "Niech najmniejsza nisza w grupie ma 840 × 890:\n" +
-                "skrzynka = (840 − 2×{0}) × (890 − 2×{0}) = {6} × {7}\n" +
-                "właz = ({6} − 2×{3}) × ({7} − 2×{3}) = {8} × {9}"),
+                "skrzynka = (840 − 2×({0}+{11})) × (890 − 2×({0}+{11})) = {6} × {7}\n" +
+                "z listwą = ({6} + 2×{1}) × ({7} + 2×{1}) = {12} × {13}\n" +
+                "właz = ({12} − {3}) × ({13} − {10}) = {8} × {9}"),
             ["help.example.negative"] = (
                 "Увага: з такими числами допуск від’ємний, групування неможливе. Збільште лиштву або зменшіть мін. напуск чи зазор.",
                 "Warning: with these numbers the tolerance is negative, so grouping is impossible. Increase the trim or decrease the min. lap or the gap.",

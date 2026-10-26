@@ -115,13 +115,13 @@ namespace HatchGrouper
             private int _bestSumSpread = int.MaxValue;
             private long _nodes;
 
-            public Assigner(List<(int W, int H)> sizes, int[][] allowed, int winCount, int gapWMm, int gapHMm)
+            public Assigner(List<(int W, int H)> sizes, int[][] allowed, int winCount, double gapWMm, double gapHMm)
             {
                 _sizes = sizes;
                 _allowed = allowed;
                 _winCount = winCount;
-                _twoGapW = 2 * gapWMm;
-                _twoGapH = 2 * gapHMm;
+                _twoGapW = (int)Math.Round(2 * gapWMm);
+                _twoGapH = (int)Math.Round(2 * gapHMm);
 
                 _minW = new int[winCount];
                 _maxW = new int[winCount];

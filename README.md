@@ -4,18 +4,20 @@ A small Windows (WPF) tool that groups wall-niche sizes for water-meter (or othe
 into the smallest possible number of standard box sizes,
 so that one box can be manufactured for a whole group of similar niches instead of one box per niche.
 
-**Version:** 0.1 · **Author:** Oleksandr Lypka · **License:** [CC BY-NC 4.0](LICENSE)
+**Version:** 0.2-beta · **Author:** Oleksandr Lypka · **License:** [CC BY-NC 4.0](LICENSE)
 
 ## Features
 
 - Paste the niche list straight from the customer's document (Word, Excel, plain text).
 - Exact grouping: finds the minimum number of groups that cover all niches, and assigns borderline niches that fit into several groups so that the maximum gap is minimal.
-- Per group: box size, hatch size, maximum gap, minimum trim lap and the list of niches (by entrance).
-- Adjustable parameters: gap, trim, minimum lap, hatch offset (symmetric on all sides by default; optional separate parameters/tolerance for width and height in **Settings…**).
+- Per group: box size, size with trim, hatch size, maximum gap, minimum trim lap, drawing code / note column, and the list of niches with source line numbers (by entrance).
+- Editable **Code / Note** column in the table for drawing designations, saved in project files and exported to CSV.
+- Adjustable parameters: gap, trim, minimum lap, hatch offset, hatch opening clearance, mounting ears (symmetric on all sides by default; optional separate parameters/tolerance for width and height in **Settings…**).
 - Units of measurement (cm / mm) chosen separately for the input list, the parameter fields and the result table.
 - Interface languages: English (default), Ukrainian, Polish. Switch in **Settings…**.
 - **Formulas…** window: plain-language explanation, all formulas and an example computed from your current numbers.
 - **Visualization…** window: interactive 2D map of niches and group bounding boxes with zoom, pan, and group highlighting.
+- **Extreme cases…** window: visual 2D cross-section schematic and recommendation analysis of critical cases (smallest and largest niches) with wall clearances and trim laps so you don't need to test every single niche.
 - Settings are saved automatically between runs.
 - Save / open a whole project (`*.hatch.json`) and export the result to CSV (opens correctly in Excel).
 - Readable error messages instead of crashes.
@@ -79,17 +81,20 @@ All sizes are millimetres internally.
 | Gap | 5 | gap between box and niche, per side |
 | Trim | 60 | how far the trim sticks out beyond the box, per side |
 | Min. lap | 25 | minimal trim overlap on the wall (assumption, confirm with the designer) |
-| Hatch offset | 60 | the hatch is smaller than the box by this much per side (from one example: box 1160×850 → hatch 1040×730) |
+| Hatch smaller than trim (W / H) | 131.6 / 131.2 | how much smaller the hatch width / height is than the outer trim size |
+| Ears | 1 | flat mounting tabs/ears on top, bottom and sides (+1 mm per side; 0 allowed) |
 
 Formulas:
 
 ```
 max gap per side   = trim - min. lap
-spread tolerance   = 2 * (max gap - gap)              # per dimension
-box size           = smallest niche in the group - 2 * gap
-hatch size         = box size - 2 * hatch offset
-gap per side       = gap + spread / 2                 # spread = largest - smallest niche in the group
-lap on the wall    = trim - gap per side
+spread tolerance   = 2 * (max gap - (gap + ears))     # per dimension
+box size           = smallest niche in the group - 2 * (gap + ears)
+size with trim     = box size + 2 * trim
+hatch size (W × H) = (trim width - 131.6) × (trim height - 131.2)
+gap to box body    = (gap + ears) + spread / 2        # spread = largest - smallest niche in the group
+gap to ear         = gap to box body - ears
+lap on the wall    = trim - gap to box body
 ```
 
 Grouping: every distinct (width, height) is a point. A group is a `toleranceW × toleranceH` rectangle
@@ -109,6 +114,7 @@ several chosen rectangles so that the maximum gap across groups is minimal (see 
 | `src/SettingsWindow.*` | settings dialog (units, language) |
 | `src/HelpWindow.*` | formulas and explanation window |
 | `src/VisualizerWindow.*` | interactive 2D niche grouping map (zoom, pan, legend) |
+| `src/ExtremeCasesWindow.*` | 2D cross-section diagram and recommendation analysis of extreme cases |
 | `src/SettingsStore.cs` | saves the settings to `%AppData%\HatchGrouper\settings.json` |
 
 ## Adding or fixing a translation
@@ -149,11 +155,19 @@ For anything beyond that, contact the author to agree on separate terms.
 
 ## Changelog
 
-The version stays at 0.1 until the author decides otherwise.
+### v0.2-beta
+- Decimal millimeter support (0.1 mm precision) across all parameters.
+- Mounting ears parameter (`EarMm`, default 1 mm per side) with clearance check.
+- Exact hatch formula linked directly to outer trim dimensions: HatchW = TrimW - HatchDiffW, HatchH = TrimH - HatchDiffH.
+- Editable **Code / Note** column in the main table with CSV export and project file persistence.
+- **Size with trim** column added to the result table.
+- Source niche identifiers (`[entrance.niche]`) displayed in the compact composition column and in extreme cases.
+- **Extreme cases & gap analysis** window (`ExtremeCasesWindow`) with 2D cross-section diagram, critical niches check (narrowest, lowest, widest, tallest, envelope), and dynamic clearance recommendations.
 
+### v0.1
 - First version: parse, group, save/load project, CSV export.
 - Program settings saved between runs; example input; user-friendly error messages.
 - Units (cm / mm) for the input list, parameters and result table; interface language switch.
 - **Formulas…** window with a plain explanation; Polish language; English is the default language.
-- Optimal assignment of borderline niches to minimise the maximum gap; optional separate tolerance for width and height (symmetric on all sides by default).
+- Optimal assignment of borderline niches to minimise the maximum gap; optional separate tolerance for width and height.
 - **Visualization…** window with 2D grouping map, smooth zoom/pan controls, group highlighting, and full trilingual localization.
