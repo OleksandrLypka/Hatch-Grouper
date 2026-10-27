@@ -80,29 +80,47 @@ All sizes are millimetres internally.
 | Parameter | Default | Meaning |
 |---|---|---|
 | Gap | 5 | gap between box and niche, per side |
-| Trim | 60 | how far the trim sticks out beyond the box, per side |
+| Trim | 60 | nominal trim flange width beyond the nominal box body |
 | Min. lap | 25 | minimal trim overlap on the wall (assumption, confirm with the designer) |
 | Hatch smaller than trim (W / H) | 131.6 / 131.2 | how much smaller the hatch width / height is than the outer trim size |
 | Ears | 1 | flat mounting tabs/ears on top, bottom and sides (+1 mm per side; 0 allowed) |
+| Trim to box bend offset (W / H) | 116.2 / 117.8 | difference between outer trim and box body in CAD sheet metal bend profile |
+| Box Depth | 80 | standard box depth callout for drawings |
 
 Formulas:
 
 ```
-max gap per side   = trim - min. lap
-spread tolerance   = 2 * (max gap - (gap + ears))     # per dimension
-box size           = smallest niche in the group - 2 * (gap + ears)
-size with trim     = box size + 2 * trim
-hatch size (W × H) = (trim width - 131.6) × (trim height - 131.2)
-gap to box body    = (gap + ears) + spread / 2        # spread = largest - smallest niche in the group
-gap to ear         = gap to box body - ears
-lap on the wall    = trim - gap to box body
+max gap per side       = trim - min. lap
+spread tolerance       = 2 * (max gap - (gap + ears))     # per dimension
+nominal box size       = smallest niche in the group - 2 * (gap + ears)
+size with trim         = nominal box size + 2 * trim
+actual CAD box body    = (trim width - 116.2) × (trim height - 117.8)
+drawing callout        = rounded(actual box W) × rounded(actual box H) × depth
+hatch size (W × H)     = (trim width - 131.6) × (trim height - 131.2)
+gap to box body        = (gap + ears) + spread / 2        # spread = largest - smallest niche in the group
+gap to ear             = gap to box body - ears
+lap on the wall        = trim - gap to box body
 ```
 
-Grouping: every distinct (width, height) is a point. A group is a `toleranceW × toleranceH` rectangle
+Group: every distinct (width, height) is a point. A group is a `toleranceW × toleranceH` rectangle
 (a square by default when tolerance is symmetric on all sides).
 The program searches for the minimal number of rectangles that cover all points
 (exact set cover, depth-first search with pruning), and then assigns points that fall into
 several chosen rectangles so that the maximum gap across groups is minimal (see [`Grouper.cs`](src/Grouper.cs)).
+
+## CAD & Sheet Metal Profile Customization
+
+> [!NOTE]
+> Different manufacturers and sheet metal workshops use different sheet metal thicknesses, bend deductions (K-factors), and construction profiles.
+
+By default, HatchGrouper is configured for an **integrated single-piece bent sheet metal hatch** (where the internal box body and the outer trim flange are formed from a single unfolded sheet):
+- Outer trim dimensions are driven by the nominal flange width (e.g. 60 mm nominal trim: `TrimW = NominalBoxW + 2 * TrimMm`).
+- Internal box dimensions are calculated via CAD bend difference parameters:
+  - `TrimDiffWMm = 116.2 mm`
+  - `TrimDiffHMm = 117.8 mm`
+  - Result: `ActualBoxW = TrimW - 116.2 mm`, `ActualBoxH = TrimH - 117.8 mm`
+
+If your 3D CAD model or manufacturing technology uses a different profile (for example, a welded frame, a separate bolt-on trim profile, or different bending deductions for thicker/thinner sheet metal), these parameters can be customized in **Settings…** or in the source code to match your specific CAD model and workshop tooling.
 
 ## Project structure
 
