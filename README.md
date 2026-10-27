@@ -15,7 +15,7 @@ so that one box can be manufactured for a whole group of similar niches instead 
 - Adjustable parameters: gap, trim, minimum lap, hatch offset, hatch opening clearance, mounting ears (symmetric on all sides by default; optional separate parameters/tolerance for width and height in **Settings…**).
 - Units of measurement (cm / mm) chosen separately for the input list, the parameter fields and the result table.
 - Interface languages: English (default), Ukrainian, Polish. Switch in **Settings…**.
-- **Formulas…** window: plain-language explanation, all formulas and an example computed from your current numbers.
+- **Formulas & CAD…** window: tabbed window with formulas, plain-language calculation explanation, and a step-by-step visual CAD guide with illustrations showing where to measure your 3D model in SolidWorks/Inventor.
 - **Visualization…** window: interactive 2D map of niches and group bounding boxes with zoom, pan, and group highlighting.
 - **Extreme cases…** window: visual 2D cross-section schematic and recommendation analysis of critical cases (smallest and largest niches) with wall clearances and trim laps so you don't need to test every single niche.
 - **Niche specification tab (1.1, 1.2...)**: natural-order list of every niche with its matching box size, trim, hatch, and group, with one-click clipboard copying (`(1.1) Niche... - Box...`) and CSV export.
@@ -122,6 +122,8 @@ By default, HatchGrouper is configured for an **integrated single-piece bent she
 
 If your 3D CAD model or manufacturing technology uses a different profile (for example, a welded frame, a separate bolt-on trim profile, or different bending deductions for thicker/thinner sheet metal), these parameters can be customized in **Settings…** or in the source code to match your specific CAD model and workshop tooling.
 
+For a step-by-step visual tutorial with SolidWorks screenshots, see the **[CAD Measurement Guide (docs/CAD_GUIDE.md)](docs/CAD_GUIDE.md)** or open the **Formulas & CAD…** window directly in the application.
+
 ## Project structure
 
 | File | Purpose |
@@ -180,6 +182,8 @@ For anything beyond that, contact the author to agree on separate terms.
 - Added dedicated **Drawing size** column (`BoxDrawing`, e.g. `852 × 768 × 80`) alongside exact calculated dimensions.
 - Configurable box size rounding in Settings for drawing specifications (To nearest, Always up / Ceiling, Always down / Floor).
 - Single-cell and row clipboard copying via right-click ContextMenu and `Ctrl+C`.
+- **Formulas & CAD Guide** window with a visual step-by-step tutorial (with 3D CAD screenshots) explaining where and how to measure trim, box body, bend deltas, and hatch opening.
+- New offline & online CAD documentation ([`docs/CAD_GUIDE.md`](docs/CAD_GUIDE.md)).
 
 ### v0.2-beta
 - Ordered niche-by-niche specification tab (`1.1, 1.2...`) in the main window with one-click clipboard copying (`(1.1) Ніша - Розмір короба`) and dedicated CSV export.

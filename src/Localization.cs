@@ -59,7 +59,7 @@ namespace HatchGrouper
             ["btn.save"] = ("Зберегти…", "Save…", "Zapisz…"),
             ["btn.export"] = ("Експорт CSV…", "Export CSV…", "Eksport CSV…"),
             ["btn.settings"] = ("Налаштування…", "Settings…", "Ustawienia…"),
-            ["btn.help"] = ("Формули…", "Formulas…", "Wzory…"),
+            ["btn.help"] = ("Формули та CAD…", "Formulas & CAD…", "Wzory i CAD…"),
             ["btn.visualize"] = ("Візуалізація…", "Visualization…", "Wizualizacja…"),
             ["btn.extremes"] = ("Крайні випадки…", "Extreme cases…", "Przypadki skrajne…"),
             ["btn.ok"] = ("OK", "OK", "OK"),
@@ -261,7 +261,121 @@ namespace HatchGrouper
                              "Najpierw naciśnij \"Grupuj\", aby wykonać analizę grup."),
 
             // help window: formulas and plain explanation
-            ["help.title"] = ("Формули та пояснення", "Formulas and explanation", "Wzory i wyjaśnienia"),
+            ["help.title"] = ("Формули та CAD гід", "Formulas & CAD Guide", "Wzory i przewodnik CAD"),
+            ["help.tab.formulas"] = ("Формули та розрахунок", "Formulas & Calculation", "Wzory i obliczenia"),
+            ["help.tab.cad"] = ("CAD гід: як міряти модель", "CAD Guide: Measuring 3D Model", "Przewodnik CAD: jak mierzyć model"),
+
+            // CAD tutorial strings
+            ["help.cad.intro.title"] = ("Звідки беруться зміщення для 3D моделі", "Where CAD Model Offsets Come From", "Skąd się biorą przesunięcia dla modelu CAD"),
+            ["help.cad.intro.body"] = (
+                "У програмі закладено геометрію суцільногнутого виробу, де короб і лиштва утворені з одного розгорнутого листа металу шляхом згинання. " +
+                "Через товщину металу, K-фактор і деформацію на лініях згину фактичний внутрішній розмір короба відрізняється від крайнього габариту лиштви на фіксовані зміщення. " +
+                "Виконайте 5 простих вимірів у вашій 3D моделі (SolidWorks, Inventor тощо), щоб підставити точні параметри під вашу технологію:",
+                "HatchGrouper is configured for an integrated single-piece bent sheet metal hatch where the box body and outer trim flange are bent from a single flat sheet. " +
+                "Due to sheet thickness, K-factors, and bend deformation, the actual inner box body differs from the outer trim flange by fixed offsets. " +
+                "Perform 5 simple measurements in your 3D CAD model (SolidWorks, Inventor, etc.) to configure the exact parameters for your workshop:",
+                "Program bazuje na geometrii konstrukcji giętej z jednego arkusza, gdzie skrzynka i listwa tworzą jeden element po gięciu. " +
+                "Ze względu na grubość blachy, współczynnik K i odkształcenia na liniach gięcia rzeczywisty wymiar skrzynki różni się od listwy o stałe przesunięcia. " +
+                "Wykonaj 5 prostych pomiarów w swoim modelu 3D (SolidWorks, Inventor itp.), aby dopasować parametry do swojej technologii:"),
+
+            ["help.cad.s1.title"] = ("Крок 1. Зовнішній габарит відігнутої лиштви (W_trim × H_trim)",
+                                     "Step 1. Outer Trim Flange Dimensions (W_trim × H_trim)",
+                                     "Krok 1. Zewnętrzny wymiar listwy (W_trim × H_trim)"),
+            ["help.cad.s1.body"] = (
+                "Виміряйте крайній габарит лицьової лиштви (фланця). Наприклад, для базової моделі:\n" +
+                "• Ширина лиштви = 968.0 мм\n" +
+                "• Висота лиштви = 885.0 мм\n" +
+                "Це розмір, який перекриває нішу з боку приміщення разом із декоративним напуском на стіну.",
+                "Measure the outermost overall dimensions of the front bent trim flange. For example, in the baseline model:\n" +
+                "• Trim width = 968.0 mm\n" +
+                "• Trim height = 885.0 mm\n" +
+                "This is the front dimension that covers the wall niche with decorative wall overlap.",
+                "Zmierz zewnętrzny gabaryt przedniej listwy (kołnierza). Na przykład w modelu bazowym:\n" +
+                "• Szerokość listwy = 968.0 mm\n" +
+                "• Wysokość listwy = 885.0 mm\n" +
+                "Jest to wymiar zewnętrzny, który zakrywa niszę od strony pomieszczenia z zakładem na ścianę."),
+            ["help.cad.s1.cap1"] = ("Ширина лиштви: 968 мм (зовнішній край)", "Trim width: 968 mm (outer flange edge)", "Szerokość listwy: 968 mm (krawędź zewnętrzna)"),
+            ["help.cad.s1.cap2"] = ("Висота лиштви: 885 мм (зовнішній край)", "Trim height: 885 mm (outer flange edge)", "Wysokość listwy: 885 mm (krawędź zewnętrzna)"),
+
+            ["help.cad.s2.title"] = ("Крок 2. Тіло короба після згину листа (W_box × H_box)",
+                                     "Step 2. Internal Box Body After Bending (W_box × H_box)",
+                                     "Krok 2. Korpus skrzynki po gięciu blachy (W_box × H_box)"),
+            ["help.cad.s2.body"] = (
+                "За допомогою інструмента Measure (Виміряти) у вашій CAD-системі виберіть дві протилежні паралельні стінки короба. " +
+                "У результаті згинання листового металу розмір має десяткові частки:\n" +
+                "• Фактична ширина короба = 851.8 мм\n" +
+                "• Фактична висота короба = 767.2 мм",
+                "Using the Measure tool in your CAD software, select two opposing parallel faces of the box body. " +
+                "Due to sheet metal bend radii and deductions, the result has decimal millimetres:\n" +
+                "• Actual box width = 851.8 mm\n" +
+                "• Actual box height = 767.2 mm",
+                "Za pomocą narzędzia Zmierz (Measure) w programie CAD wybierz dwie przeciwległe równoległe ścianki skrzynki. " +
+                "W wyniku gięcia wymiary mają wartości dziesiętne:\n" +
+                "• Rzeczywista szerokość skrzynki = 851.8 mm\n" +
+                "• Rzeczywista wysokość skrzynki = 767.2 mm"),
+            ["help.cad.s2.cap1"] = ("Ширина короба: 851.8 мм (SolidWorks Measure)", "Box width: 851.8 mm (SolidWorks Measure)", "Szerokość skrzynki: 851.8 mm (SolidWorks Measure)"),
+            ["help.cad.s2.cap2"] = ("Висота короба: 767.2 мм (SolidWorks Measure)", "Box height: 767.2 mm (SolidWorks Measure)", "Wysokość skrzynki: 767.2 mm (SolidWorks Measure)"),
+
+            ["help.cad.s3.title"] = ("Крок 3. Розрахунок дельти «Лиштва − короб» (TrimDiff)",
+                                     "Step 3. Calculate \"Trim − Box\" Bend Offsets (TrimDiff)",
+                                     "Krok 3. Obliczenie różnicy \"Listwa − skrzynka\" (TrimDiff)"),
+            ["help.cad.s3.body"] = (
+                "Відніміть розмір стінок короба від повного габариту лиштви:\n" +
+                "• По ширині (TrimDiffW): 968.0 − 851.8 = 116.2 мм\n" +
+                "• По висоті (TrimDiffH): 885.0 − 767.2 = 117.8 мм\n\n" +
+                "Введіть ці значення у полі «Лиштва − короб (Ш/В): 116,2 / 117,8» (або у вікні «Налаштування…»). " +
+                "Програма автоматично відніматиме їх від габариту лиштви, забезпечуючи точний розрахунок тіла короба під вашу CAD-збірку.",
+                "Subtract the box body size from the outer trim dimensions:\n" +
+                "• Width offset (TrimDiffW): 968.0 − 851.8 = 116.2 mm\n" +
+                "• Height offset (TrimDiffH): 885.0 − 767.2 = 117.8 mm\n\n" +
+                "Enter these values into the \"Trim − box (W/H): 116.2 / 117.8\" field (or in \"Settings…\"). " +
+                "The program automatically subtracts them from the trim size, ensuring the box body matches your CAD model.",
+                "Odejmij wymiary skrzynki od wymiarów zewnętrznych listwy:\n" +
+                "• Szerokość (TrimDiffW): 968.0 − 851.8 = 116.2 mm\n" +
+                "• Wysokość (TrimDiffH): 885.0 − 767.2 = 117.8 mm\n\n" +
+                "Wpisz te wartości w polu \"Listwa − skrz. (Sz/W): 116,2 / 117,8\" (lub w \"Ustawienia…\"). " +
+                "Program automatycznie odejmie je od wymiaru listwy, dopasowując skrzynkę do Twojego modelu CAD."),
+            ["help.cad.s3.formula"] = ("TrimDiffW = TrimW − BoxW = 968.0 − 851.8 = 116.2 мм\nTrimDiffH = TrimH − BoxH = 885.0 − 767.2 = 117.8 мм",
+                                       "TrimDiffW = TrimW − BoxW = 968.0 − 851.8 = 116.2 mm\nTrimDiffH = TrimH − BoxH = 885.0 − 767.2 = 117.8 mm",
+                                       "TrimDiffW = TrimW − BoxW = 968.0 − 851.8 = 116.2 mm\nTrimDiffH = TrimH − BoxH = 885.0 − 767.2 = 117.8 mm"),
+
+            ["help.cad.s4.title"] = ("Крок 4. Світловий отвір та розмір дверцят люка (HatchDiff)",
+                                     "Step 4. Clear Opening and Hatch Door Size (HatchDiff)",
+                                     "Krok 4. Prześwit i wymiary drzwiczek włazu (HatchDiff)"),
+            ["help.cad.s4.body"] = (
+                "Виміряйте внутрішній світловий отвір або дверцята люка (на прикладі: 836.4 × 753.8 мм). " +
+                "Різниця від зовнішньої лиштви становить:\n" +
+                "• По ширині (HatchDiffW): 968.0 − 836.4 = 131.6 мм\n" +
+                "• По висоті (HatchDiffH): 885.0 − 753.8 = 131.2 мм\n\n" +
+                "Ці значення вказуються в полі «Лиштва − люк (Ш/В): 131,6 / 131,2» і визначають розмір люка для виготовлення.",
+                "Measure the clear opening or hatch door in your CAD model (in this example: 836.4 × 753.8 mm). " +
+                "The offset from the outer trim is:\n" +
+                "• Width offset (HatchDiffW): 968.0 − 836.4 = 131.6 mm\n" +
+                "• Height offset (HatchDiffH): 885.0 − 753.8 = 131.2 mm\n\n" +
+                "These values are specified in the \"Trim − hatch (W/H): 131.6 / 131.2\" field to compute the manufactured hatch door size.",
+                "Zmierz prześwit lub drzwiczki włazu w modelu CAD (na przykładzie: 836.4 × 753.8 mm). " +
+                "Różnica względem listwy wynosi:\n" +
+                "• Szerokość (HatchDiffW): 968.0 − 836.4 = 131.6 mm\n" +
+                "• Wysokość (HatchDiffH): 885.0 − 753.8 = 131.2 mm\n\n" +
+                "Wartości te wpisuje się w polu \"Listwa − właz (Sz/W): 131,6 / 131,2\" i określają one wymiar drzwiczek."),
+            ["help.cad.s4.cap1"] = ("Світловий отвір люка: 836.4 × 753.8 мм", "Hatch door opening: 836.4 × 753.8 mm", "Prześwit włazu: 836.4 × 753.8 mm"),
+
+            ["help.cad.s5.title"] = ("Крок 5. Монтажні вушка та глибина короба",
+                                     "Step 5. Mounting Tabs and Box Depth",
+                                     "Krok 5. Uszka montażowe i głębokość skrzynki"),
+            ["help.cad.s5.body"] = (
+                "• Вушка: плоскі монтажні планки на стінках короба виступають на 1 мм на кожен бік (поле «Вушка, мм/бік: 1»). " +
+                "Програма враховує їх при перевірці вільного проходу в найвужчу нішу.\n" +
+                "• Глибина: стандартна глибина короба в стіну (за замовчуванням 80 мм). Вона використовується для колонки " +
+                "«Креслення (Ш×В×Г, мм)» (наприклад: 852 × 768 × 80 мм) разом із налаштованим округленням.",
+                "• Mounting tabs (ears): flat tabs stick out beyond the box body by 1 mm on each side (\"Ears, mm/side: 1\"). " +
+                "The program includes them when verifying that the box freely fits into the smallest niche.\n" +
+                "• Depth: standard box depth into the wall (default 80 mm). Used for the " +
+                "\"Drawing (W×H×D, mm)\" callout column (e.g. 852 × 768 × 80 mm) according to the configured rounding mode.",
+                "• Uszka montażowe: płaskie uszka wystają poza ściankę skrzynki o 1 mm z każdej strony (\"Uszka, mm/stronę: 1\"). " +
+                "Program uwzględnia je przy sprawdzaniu swobodnego wejścia w najmniejszą niszę.\n" +
+                "• Głębokość: standardowa głębokość skrzynki w ścianę (domyślnie 80 mm). Jest używana w kolumnie " +
+                "\"Rysunek (Sz×W×G, mm)\" (np. 852 × 768 × 80 mm) zgodnie z wybranym zaokrągleniem."),
 
             ["help.h.what"] = ("Що робить програма", "What the program does", "Co robi program"),
             ["help.what"] = (

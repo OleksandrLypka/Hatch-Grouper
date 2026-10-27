@@ -13,4 +13,8 @@
     <Product>HatchGrouper</Product>
     <Copyright>Copyright (c) Oleksandr Lypka</Copyright>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\CadGuide\*.png" />
+  </ItemGroup>
 </Project>
