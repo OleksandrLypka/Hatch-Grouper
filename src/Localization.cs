@@ -264,6 +264,15 @@ namespace HatchGrouper
             ["help.title"] = ("Формули та CAD гід", "Formulas & CAD Guide", "Wzory i przewodnik CAD"),
             ["help.tab.formulas"] = ("Формули та розрахунок", "Formulas & Calculation", "Wzory i obliczenia"),
             ["help.tab.cad"] = ("CAD гід: як міряти модель", "CAD Guide: Measuring 3D Model", "Przewodnik CAD: jak mierzyć model"),
+            ["img.preview.title"] = ("Перегляд зображення", "Image Preview", "Podgląd obrazu"),
+            ["img.click.enlarge"] = ("🔍 Клацніть для збільшення", "🔍 Click to enlarge", "🔍 Kliknij, aby powiększyć"),
+            ["img.zoom.in"] = ("Збільшити", "Zoom In", "Powiększ"),
+            ["img.zoom.out"] = ("Зменшити", "Zoom Out", "Pomniejsz"),
+            ["img.zoom.fit"] = ("За розміром вікна", "Fit to window", "Dopasuj do okna"),
+            ["img.zoom.reset"] = ("1:1 (оригінал)", "1:1 (original)", "1:1 (oryginał)"),
+            ["img.hint"] = ("Коліщатко миші — масштаб • Затисніть ліву кнопку — переміщення • Двічі клацніть — скинути масштаб • Esc — закрити",
+                            "Mouse wheel to zoom • Drag to pan • Double-click to toggle fit • Esc to close",
+                            "Kółko myszy — zoom • Przeciągnij — przesuwanie • Dwuklik — dopasuj • Esc — zamknij"),
 
             // CAD tutorial strings
             ["help.cad.intro.title"] = ("Звідки беруться зміщення для 3D моделі", "Where CAD Model Offsets Come From", "Skąd się biorą przesunięcia dla modelu CAD"),

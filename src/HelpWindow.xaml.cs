@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -149,21 +150,40 @@ namespace HatchGrouper
 
         private FrameworkElement CreateImageCard(string fileName, string caption, double maxHeight = 220)
         {
+            var defaultBorder = new SolidColorBrush(Color.FromRgb(0xCB, 0xD5, 0xE1));
+            var hoverBorder = new SolidColorBrush(Color.FromRgb(0x3B, 0x82, 0xF6));
+            var defaultBg = new SolidColorBrush(Color.FromRgb(0xF8, 0xFA, 0xFC));
+            var hoverBg = new SolidColorBrush(Color.FromRgb(0xEE, 0xF2, 0xFF));
+
             var border = new Border
             {
-                BorderBrush = new SolidColorBrush(Color.FromRgb(0xCB, 0xD5, 0xE1)),
+                BorderBrush = defaultBorder,
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(6),
-                Background = new SolidColorBrush(Color.FromRgb(0xF8, 0xFA, 0xFC)),
+                Background = defaultBg,
                 Margin = new Thickness(4),
-                Padding = new Thickness(6)
+                Padding = new Thickness(6),
+                Cursor = Cursors.Hand,
+                ToolTip = Loc.T("img.click.enlarge")
+            };
+
+            border.MouseEnter += (_, _) =>
+            {
+                border.BorderBrush = hoverBorder;
+                border.Background = hoverBg;
+            };
+            border.MouseLeave += (_, _) =>
+            {
+                border.BorderBrush = defaultBorder;
+                border.Background = defaultBg;
             };
 
             var sp = new StackPanel();
+            BitmapImage bmp = null;
             try
             {
                 var uri = new Uri($"pack://application:,,,/Resources/CadGuide/{fileName}", UriKind.Absolute);
-                var bmp = new BitmapImage(uri);
+                bmp = new BitmapImage(uri);
                 var img = new Image
                 {
                     Source = bmp,
@@ -178,19 +198,48 @@ namespace HatchGrouper
                 // Fallback in case resource cannot be loaded
             }
 
+            border.MouseLeftButtonUp += (s, e) =>
+            {
+                if (bmp != null)
+                {
+                    var preview = new ImagePreviewWindow(bmp, caption) { Owner = this };
+                    preview.ShowDialog();
+                }
+            };
+
+            var captionDock = new DockPanel { Margin = new Thickness(0, 6, 0, 0) };
+
+            var zoomBadge = new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(0xE0, 0xE7, 0xFF)),
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(6, 2, 6, 2),
+                Margin = new Thickness(6, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                Child = new TextBlock
+                {
+                    Text = "🔍",
+                    FontSize = 10,
+                    Foreground = new SolidColorBrush(Color.FromRgb(0x43, 0x38, 0xCA))
+                }
+            };
+            DockPanel.SetDock(zoomBadge, Dock.Right);
+            captionDock.Children.Add(zoomBadge);
+
             if (!string.IsNullOrEmpty(caption))
             {
-                sp.Children.Add(new TextBlock
+                captionDock.Children.Add(new TextBlock
                 {
                     Text = caption,
                     FontSize = 11,
                     FontWeight = FontWeights.SemiBold,
                     Foreground = new SolidColorBrush(Color.FromRgb(0x47, 0x55, 0x69)),
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(0, 6, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Center,
                     TextWrapping = TextWrapping.Wrap
                 });
             }
+
+            sp.Children.Add(captionDock);
 
             border.Child = sp;
             return border;
