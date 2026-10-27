@@ -1,5 +1,7 @@
+using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
@@ -8,8 +10,8 @@ namespace HatchGrouper
     /// <summary>One wall niche. All sizes are stored in millimetres.</summary>
     public class Niche
     {
-        public int WidthMm { get; set; }
-        public int HeightMm { get; set; }
+        public double WidthMm { get; set; }
+        public double HeightMm { get; set; }
         public int Entrance { get; set; }
         public int NicheNo { get; set; } // number of the niche inside its entrance ("1)" in the list); shown as "entrance.no"
     }
@@ -17,6 +19,10 @@ namespace HatchGrouper
     /// <summary>Unit of length shown to / entered by the user. Internally everything is millimetres.</summary>
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum LengthUnit { Cm, Mm }
+
+    /// <summary>Rounding mode for the drawing box size.</summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum BoxRounding { Nearest, Up, Down }
 
     /// <summary>Error whose text is written for the end user and can be shown as is.</summary>
     public class UserException : Exception
@@ -42,7 +48,7 @@ namespace HatchGrouper
                     return plusIdx > 0 ? info.Substring(0, plusIdx) : info;
                 }
                 var v = typeof(AppInfo).Assembly.GetName().Version;
-                return v == null ? "0.2-beta" : $"{v.Major}.{v.Minor}-beta";
+                return v == null ? "0.3-beta" : $"{v.Major}.{v.Minor}-beta";
             }
         }
     }
@@ -64,12 +70,16 @@ namespace HatchGrouper
         public LengthUnit DisplayUnit { get; set; } = LengthUnit.Cm; // unit of sizes in the result table / CSV
         public AppLanguage Language { get; set; } = AppLanguage.En; // interface language, English by default (an app preference, not part of a project)
         public bool SeparateTolerance { get; set; } = false;         // false = symmetric on all sides (default); true = separate W and H
+        public BoxRounding BoxRounding { get; set; } = BoxRounding.Nearest; // rounding for the drawing box size
 
         public double GapMm { get; set; } = 5;            // box-to-niche gap per side (width / all sides)
-        public double TrimMm { get; set; } = 60;          // trim protrusion beyond the box per side (width / all sides)
+        public double TrimMm { get; set; } = 60;          // nominal trim protrusion per side (width / all sides)
+        public double TrimDiffWMm { get; set; } = 116.2; // trim width - box width (sheet metal bend offset)
+        public double TrimDiffHMm { get; set; } = 117.8; // trim height - box height (sheet metal bend offset)
         public double MinLapMm { get; set; } = 25;        // minimal trim overlap on the wall (width / all sides)
         public double HatchDiffWMm { get; set; } = 131.6; // hatch width = trim width - HatchDiffWMm
         public double HatchDiffHMm { get; set; } = 131.2; // hatch height = trim height - HatchDiffHMm
+        public double DepthMm { get; set; } = 80;         // box depth
         public double EarMm { get; set; } = 1;            // flat mounting tabs/ears protrusion per side (top, bottom, sides; 0 allowed, standard 1)
 
         // Height (top/bottom) parameters, used only when SeparateTolerance is true
@@ -90,34 +100,62 @@ namespace HatchGrouper
         /// Allowed size spread inside a group (width and height).
         /// Gap per side to box body = GapMm + EarMm + spread / 2, so spread &lt;= 2 * (MaxGap - (GapMm + EarMm)).
         /// </summary>
-        [JsonIgnore] public int ToleranceWMm => (int)Math.Round(2 * (MaxGapWMm - (GapMm + EarMm)));
-        [JsonIgnore] public int ToleranceHMm => (int)Math.Round(2 * (MaxGapHMm - (EffGapHMm + EarMm)));
-        [JsonIgnore] public int ToleranceMm => ToleranceWMm;
+        [JsonIgnore] public double ToleranceWMm => Math.Round(2 * (MaxGapWMm - (GapMm + EarMm)), 1);
+        [JsonIgnore] public double ToleranceHMm => Math.Round(2 * (MaxGapHMm - (EffGapHMm + EarMm)), 1);
+        [JsonIgnore] public double ToleranceMm => ToleranceWMm;
+
+        // Backward compatibility for projects saved with older TrimMm property
+        [JsonPropertyName("TrimMm")]
+        public double? LegacyTrimMm
+        {
+            get => null;
+            set
+            {
+                if (value.HasValue && value.Value > 0 && TrimDiffWMm == 116.2)
+                {
+                    TrimDiffWMm = Math.Round(value.Value * 2, 1);
+                    TrimDiffHMm = Math.Round(value.Value * 2, 1);
+                }
+            }
+        }
     }
 
     /// <summary>A set of niches that share one box size.</summary>
     public class NicheGroup
     {
         public List<Niche> Niches { get; set; } = new();
-        public int MinW, MaxW, MinH, MaxH;
+        public double MinW, MaxW, MinH, MaxH;
         public double BoxW, BoxH, TrimW, TrimH;
         public double HatchW, HatchH;
+        public double DepthMm;
         public double MaxGapMm, LapMm;
 
         public void Compute(Settings s)
         {
             MinW = Niches.Min(n => n.WidthMm);  MaxW = Niches.Max(n => n.WidthMm);
             MinH = Niches.Min(n => n.HeightMm); MaxH = Niches.Max(n => n.HeightMm);
-            BoxW = Math.Round(MinW - 2 * (s.GapMm + s.EarMm), 2);          // the box with ears must fit the smallest niche
-            BoxH = Math.Round(MinH - 2 * (s.EffGapHMm + s.EarMm), 2);
-            TrimW = Math.Round(BoxW + 2 * s.TrimMm, 2);
-            TrimH = Math.Round(BoxH + 2 * s.EffTrimHMm, 2);
-            HatchW = Math.Round(TrimW - s.HatchDiffWMm, 2);
-            HatchH = Math.Round(TrimH - s.HatchDiffHMm, 2);
-            double gapW = (s.GapMm + s.EarMm) + (MaxW - MinW) / 2.0;
-            double gapH = (s.EffGapHMm + s.EarMm) + (MaxH - MinH) / 2.0;
-            MaxGapMm = Math.Round(Math.Max(gapW, gapH), 2);
-            LapMm = Math.Round(Math.Min(s.TrimMm - gapW, s.EffTrimHMm - gapH), 2);
+
+            double nominalBoxW = MinW - 2 * (s.GapMm + s.EarMm);
+            double nominalBoxH = MinH - 2 * (s.EffGapHMm + s.EarMm);
+
+            TrimW = Math.Round(nominalBoxW + 2 * s.TrimMm, 1);
+            TrimH = Math.Round(nominalBoxH + 2 * s.EffTrimHMm, 1);
+
+            BoxW = Math.Round(TrimW - s.TrimDiffWMm, 1);
+            BoxH = Math.Round(TrimH - s.TrimDiffHMm, 1);
+
+            HatchW = Math.Round(TrimW - s.HatchDiffWMm, 1);
+            HatchH = Math.Round(TrimH - s.HatchDiffHMm, 1);
+
+            DepthMm = s.DepthMm;
+
+            double gapW = (MaxW - BoxW) / 2.0;
+            double gapH = (MaxH - BoxH) / 2.0;
+            MaxGapMm = Math.Round(Math.Max(gapW, gapH), 1);
+
+            double lapW = (TrimW - MaxW) / 2.0;
+            double lapH = (TrimH - MaxH) / 2.0;
+            LapMm = Math.Round(Math.Min(lapW, lapH), 1);
         }
     }
 
@@ -130,18 +168,69 @@ namespace HatchGrouper
     }
 
     /// <summary>One display row of the result table.</summary>
-    public class GroupRow
+    public class GroupRow : INotifyPropertyChanged
     {
         public int No { get; set; }
         public int Count { get; set; }
         public string Niche { get; set; }
         public string Box { get; set; }
+        public string BoxDrawing { get; set; } // Rounded drawing size with depth, e.g. "852 × 768 × 80"
         public string WithTrim { get; set; }
         public string Hatch { get; set; }
         public string MaxGap { get; set; }
         public string Lap { get; set; }
-        public string Note { get; set; } = "";
+
+        private string _note = "";
+        public string Note
+        {
+            get => _note;
+            set
+            {
+                if (_note != value)
+                {
+                    _note = value ?? "";
+                    OnPropertyChanged();
+                }
+            }
+        }
         public string Composition { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    /// <summary>One item in the ordered niche-by-niche specification.</summary>
+    public class NicheDetailRow : INotifyPropertyChanged
+    {
+        public string Id { get; set; }        // "(1.1)"
+        public int Entrance { get; set; }
+        public int NicheNo { get; set; }
+        public string Niche { get; set; }     // "84 × 89"
+        public string Box { get; set; }       // "70.8 × 102.5"
+        public string BoxDrawing { get; set; } // "708 × 1025 × 80"
+        public string WithTrim { get; set; }  // "82.8 × 114.5"
+        public string Hatch { get; set; }     // "69.6 × 101.4"
+        public string GroupName { get; set; } // "Група 1"
+        public int GroupNo { get; set; }      // 1
+
+        private string _note = "";
+        public string Note
+        {
+            get => _note;
+            set
+            {
+                if (_note != value)
+                {
+                    _note = value ?? "";
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     /// <summary>Parses text pasted from the customer document.</summary>
@@ -191,7 +280,10 @@ namespace HatchGrouper
             return result;
         }
 
-        private static int ToMm(string value, LengthUnit unit) =>
-            (int)Math.Round(double.Parse(value.Replace(',', '.'), CultureInfo.InvariantCulture) * (unit == LengthUnit.Cm ? 10 : 1));
+        private static double ToMm(string value, LengthUnit unit)
+        {
+            var raw = double.Parse(value.Replace(',', '.'), CultureInfo.InvariantCulture) * (unit == LengthUnit.Cm ? 10.0 : 1.0);
+            return Math.Round(raw, 1);
+        }
     }
 }

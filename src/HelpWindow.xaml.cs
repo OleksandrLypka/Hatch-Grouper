@@ -26,7 +26,7 @@ namespace HatchGrouper
 
             // The same formulas as in Models.cs (NicheGroup.Compute), with a sample niche of 840 x 890 mm
             double boxW = Math.Round(840 - 2 * (s.GapMm + s.EarMm), 2), boxH = Math.Round(890 - 2 * (s.EffGapHMm + s.EarMm), 2);
-            double trimW = Math.Round(boxW + 2 * s.TrimMm, 2), trimH = Math.Round(boxH + 2 * s.EffTrimHMm, 2);
+            double trimW = Math.Round(boxW + s.TrimDiffWMm, 2), trimH = Math.Round(boxH + s.TrimDiffHMm, 2);
             double hatchW = Math.Round(trimW - s.HatchDiffWMm, 2), hatchH = Math.Round(trimH - s.HatchDiffHMm, 2);
             AddHeader(Loc.T("help.h.example"));
             AddFormula(Loc.T("help.example",

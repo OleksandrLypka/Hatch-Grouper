@@ -23,13 +23,19 @@
                 <TextBlock x:Name="GapLabel" VerticalAlignment="Center" />
                 <TextBox x:Name="GapBox" Text="5" Width="40" Margin="4,0,12,0" />
                 <TextBlock x:Name="TrimLabel" VerticalAlignment="Center" />
-                <TextBox x:Name="TrimBox" Text="60" Width="40" Margin="4,0,12,0" />
+                <TextBox x:Name="TrimBox" Text="60" Width="36" Margin="4,0,12,0" />
+                <TextBlock x:Name="TrimDiffLabel" VerticalAlignment="Center" />
+                <TextBox x:Name="TrimDiffWBox" Text="116.2" Width="44" Margin="4,0,2,0" />
+                <TextBlock Text="/" VerticalAlignment="Center" Margin="0,0,2,0" />
+                <TextBox x:Name="TrimDiffHBox" Text="117.8" Width="44" Margin="0,0,12,0" />
                 <TextBlock x:Name="LapLabel" VerticalAlignment="Center" />
                 <TextBox x:Name="LapBox" Text="25" Width="40" Margin="4,0,12,0" />
                 <TextBlock x:Name="HatchLabel" VerticalAlignment="Center" />
                 <TextBox x:Name="HatchDiffWBox" Text="131.6" Width="44" Margin="4,0,2,0" />
                 <TextBlock Text="/" VerticalAlignment="Center" Margin="0,0,2,0" />
                 <TextBox x:Name="HatchDiffHBox" Text="131.2" Width="44" Margin="0,0,12,0" />
+                <TextBlock x:Name="DepthLabel" VerticalAlignment="Center" />
+                <TextBox x:Name="DepthBox" Text="80" Width="38" Margin="4,0,12,0" />
                 <TextBlock x:Name="EarLabel" VerticalAlignment="Center" />
                 <TextBox x:Name="EarBox" Text="1" Width="40" Margin="4,0,12,0" />
             </WrapPanel>
@@ -38,7 +44,7 @@
                 <TextBlock x:Name="GapHLabel" VerticalAlignment="Center" />
                 <TextBox x:Name="GapHBox" Text="5" Width="40" Margin="4,0,12,0" />
                 <TextBlock x:Name="TrimHLabel" VerticalAlignment="Center" />
-                <TextBox x:Name="TrimHBox" Text="60" Width="40" Margin="4,0,12,0" />
+                <TextBox x:Name="TrimHBox" Text="60" Width="36" Margin="4,0,12,0" />
                 <TextBlock x:Name="LapHLabel" VerticalAlignment="Center" />
                 <TextBox x:Name="LapHBox" Text="25" Width="40" Margin="4,0,12,0" />
             </WrapPanel>
@@ -46,6 +52,7 @@
                 <Button x:Name="GroupButton" Click="Group_Click" Padding="12,4" Margin="0,0,8,0" />
                 <Button x:Name="VisualizerButton" Click="Visualizer_Click" Padding="12,4" Margin="0,0,8,0" />
                 <Button x:Name="ExtremesButton" Click="Extremes_Click" Padding="12,4" Margin="0,0,8,0" />
+                <Button x:Name="NicheListButton" Click="NicheList_Click" Padding="12,4" Margin="0,0,8,0" />
                 <Button x:Name="OpenButton" Click="Open_Click" Padding="12,4" Margin="0,0,8,0" />
                 <Button x:Name="SaveButton" Click="Save_Click" Padding="12,4" Margin="0,0,8,0" />
                 <Button x:Name="ExportButton" Click="Export_Click" Padding="12,4" Margin="0,0,8,0" />
@@ -53,27 +60,84 @@
                 <Button x:Name="HelpButton" Click="Help_Click" Padding="12,4" />
             </WrapPanel>
             <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" Margin="0,8,0,0" TextWrapping="Wrap" />
-            <DataGrid x:Name="ResultGrid" AutoGenerateColumns="False" IsReadOnly="False"
-                      CanUserAddRows="False" HeadersVisibility="Column" MouseDoubleClick="ResultGrid_MouseDoubleClick">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding No}" IsReadOnly="True" />
-                    <DataGridTextColumn Binding="{Binding Count}" IsReadOnly="True" />
-                    <DataGridTextColumn Binding="{Binding Niche}" IsReadOnly="True" />
-                    <DataGridTextColumn Binding="{Binding Box}" IsReadOnly="True" />
-                    <DataGridTextColumn Binding="{Binding WithTrim}" IsReadOnly="True" />
-                    <DataGridTextColumn Binding="{Binding Hatch}" IsReadOnly="True" />
-                    <DataGridTextColumn Binding="{Binding MaxGap}" IsReadOnly="True" />
-                    <DataGridTextColumn Binding="{Binding Lap}" IsReadOnly="True" />
-                    <DataGridTextColumn Binding="{Binding Note, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" MinWidth="75" Width="Auto" />
-                    <DataGridTextColumn Binding="{Binding Composition}" IsReadOnly="True" Width="*">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="TextWrapping" Value="Wrap" />
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <TabControl x:Name="ViewsTabControl">
+                <TabItem x:Name="GroupsTabItem">
+                    <DataGrid x:Name="ResultGrid" AutoGenerateColumns="False" IsReadOnly="False"
+                              CanUserAddRows="False" HeadersVisibility="Column" MouseDoubleClick="ResultGrid_MouseDoubleClick"
+                              ContextMenuOpening="Grid_ContextMenuOpening" PreviewKeyDown="Grid_PreviewKeyDown">
+                        <DataGrid.ContextMenu>
+                            <ContextMenu x:Name="ResultGridContextMenu">
+                                <MenuItem x:Name="CopyCellMenuItem" Click="CopyCell_Click" InputGestureText="Ctrl+C" />
+                                <MenuItem x:Name="CopyRowMenuItem" Click="CopyRow_Click" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding No}" IsReadOnly="True" />
+                            <DataGridTextColumn Binding="{Binding Count}" IsReadOnly="True" />
+                            <DataGridTextColumn Binding="{Binding Niche}" IsReadOnly="True" />
+                            <DataGridTextColumn Binding="{Binding Box}" IsReadOnly="True" />
+                            <DataGridTextColumn Binding="{Binding BoxDrawing}" IsReadOnly="True" />
+                            <DataGridTextColumn Binding="{Binding WithTrim}" IsReadOnly="True" />
+                            <DataGridTextColumn Binding="{Binding Hatch}" IsReadOnly="True" />
+                            <DataGridTextColumn Binding="{Binding MaxGap}" IsReadOnly="True" />
+                            <DataGridTextColumn Binding="{Binding Lap}" IsReadOnly="True" />
+                            <DataGridTemplateColumn MinWidth="85" Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"
+                                                 BorderBrush="#CBD5E1" BorderThickness="1" Background="#FFFFFF"
+                                                 Padding="4,2" VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Binding="{Binding Composition}" IsReadOnly="True" Width="*">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextWrapping" Value="Wrap" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                <TabItem x:Name="NichesTabItem">
+                    <DockPanel>
+                        <WrapPanel DockPanel.Dock="Top" Margin="0,6,0,8">
+                            <Button x:Name="CopyNicheListButton" Click="CopyNicheList_Click" Padding="12,4" Margin="0,0,8,0" />
+                            <Button x:Name="ExportNichesButton" Click="ExportNiches_Click" Padding="12,4" Margin="0,0,8,0" />
+                            <TextBlock x:Name="NichesCountLabel" VerticalAlignment="Center" Foreground="#64748B" Margin="6,0,0,0" />
+                        </WrapPanel>
+                        <DataGrid x:Name="NichesGrid" AutoGenerateColumns="False" IsReadOnly="False"
+                                  CanUserAddRows="False" HeadersVisibility="Column"
+                                  ContextMenuOpening="Grid_ContextMenuOpening" PreviewKeyDown="Grid_PreviewKeyDown">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu x:Name="NichesGridContextMenu">
+                                    <MenuItem x:Name="CopyNicheCellMenuItem" Click="CopyCell_Click" InputGestureText="Ctrl+C" />
+                                    <MenuItem x:Name="CopyNicheRowMenuItem" Click="CopyRow_Click" />
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Id}" Width="75" IsReadOnly="True" />
+                                <DataGridTextColumn Binding="{Binding Niche}" Width="120" IsReadOnly="True" />
+                                <DataGridTextColumn Binding="{Binding Box}" Width="125" IsReadOnly="True" />
+                                <DataGridTextColumn Binding="{Binding BoxDrawing}" Width="145" IsReadOnly="True" />
+                                <DataGridTextColumn Binding="{Binding WithTrim}" Width="120" IsReadOnly="True" />
+                                <DataGridTextColumn Binding="{Binding Hatch}" Width="120" IsReadOnly="True" />
+                                <DataGridTextColumn Binding="{Binding GroupName}" Width="90" IsReadOnly="True" />
+                                <DataGridTemplateColumn MinWidth="90" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"
+                                                     BorderBrush="#CBD5E1" BorderThickness="1" Background="#FFFFFF"
+                                                     Padding="4,2" VerticalAlignment="Center" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </TabItem>
+            </TabControl>
         </DockPanel>
     </Grid>
 </Window>

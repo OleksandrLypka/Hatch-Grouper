@@ -9,6 +9,7 @@ namespace HatchGrouper
         public LengthUnit ParamUnit { get; private set; }
         public LengthUnit DisplayUnit { get; private set; }
         public bool SeparateTolerance { get; private set; }
+        public BoxRounding BoxRounding { get; private set; }
         public AppLanguage SelectedLanguage { get; private set; }
 
         public SettingsWindow(Settings current)
@@ -21,6 +22,7 @@ namespace HatchGrouper
             ParamUnitLabel.Text = Loc.T("set.params");
             DisplayUnitLabel.Text = Loc.T("set.display");
             ToleranceLabel.Text = Loc.T("set.tolerance");
+            RoundingLabel.Text = Loc.T("set.rounding");
             LanguageLabel.Text = Loc.T("set.language");
             NoteText.Text = Loc.T("set.note");
             VersionText.Text = Loc.T("set.version", AppInfo.VersionText) + "  |  " + Loc.T("set.author", AppInfo.Author);
@@ -35,6 +37,9 @@ namespace HatchGrouper
             }
             ToleranceBox.Items.Add(Loc.T("set.tol.sym"));
             ToleranceBox.Items.Add(Loc.T("set.tol.sep"));
+            RoundingBox.Items.Add(Loc.T("set.round.nearest"));
+            RoundingBox.Items.Add(Loc.T("set.round.up"));
+            RoundingBox.Items.Add(Loc.T("set.round.down"));
             LanguageBox.Items.Add("Українська");
             LanguageBox.Items.Add("English");
             LanguageBox.Items.Add("Polski");
@@ -43,6 +48,7 @@ namespace HatchGrouper
             ParamUnitBox.SelectedIndex = (int)current.ParamUnit;
             DisplayUnitBox.SelectedIndex = (int)current.DisplayUnit;
             ToleranceBox.SelectedIndex = current.SeparateTolerance ? 1 : 0;
+            RoundingBox.SelectedIndex = (int)current.BoxRounding;
             LanguageBox.SelectedIndex = (int)current.Language;
         }
 
@@ -52,6 +58,7 @@ namespace HatchGrouper
             ParamUnit = (LengthUnit)ParamUnitBox.SelectedIndex;
             DisplayUnit = (LengthUnit)DisplayUnitBox.SelectedIndex;
             SeparateTolerance = ToleranceBox.SelectedIndex == 1;
+            BoxRounding = (BoxRounding)RoundingBox.SelectedIndex;
             SelectedLanguage = (AppLanguage)LanguageBox.SelectedIndex;
             DialogResult = true;
         }

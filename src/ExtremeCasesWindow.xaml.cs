@@ -29,8 +29,8 @@ namespace HatchGrouper
 
         private class NicheCaseItem
         {
-            public int W { get; set; }
-            public int H { get; set; }
+            public double W { get; set; }
+            public double H { get; set; }
             public ExtremeKind Kind { get; set; }
             public int Count { get; set; }
             public string Ids { get; set; } = "";
@@ -117,12 +117,12 @@ namespace HatchGrouper
                 .ToList();
 
             // Find physical extreme niches in the group
-            var narrowest = distinctSizes.Where(s => s.W == g.MinW).OrderBy(s => s.H).First();
-            var lowest = distinctSizes.Where(s => s.H == g.MinH).OrderBy(s => s.W).First();
-            var widest = distinctSizes.Where(s => s.W == g.MaxW).OrderByDescending(s => s.H).First();
-            var tallest = distinctSizes.Where(s => s.H == g.MaxH).OrderByDescending(s => s.W).First();
+            var narrowest = distinctSizes.Where(s => Math.Abs(s.W - g.MinW) < 1e-6).OrderBy(s => s.H).First();
+            var lowest = distinctSizes.Where(s => Math.Abs(s.H - g.MinH) < 1e-6).OrderBy(s => s.W).First();
+            var widest = distinctSizes.Where(s => Math.Abs(s.W - g.MaxW) < 1e-6).OrderByDescending(s => s.H).First();
+            var tallest = distinctSizes.Where(s => Math.Abs(s.H - g.MaxH) < 1e-6).OrderByDescending(s => s.W).First();
 
-            var addedKeys = new HashSet<(int W, int H)>();
+            var addedKeys = new HashSet<(double W, double H)>();
 
             // 1. Minimum / Entry extremes
             if (narrowest.W == lowest.W && narrowest.H == lowest.H)
@@ -222,7 +222,7 @@ namespace HatchGrouper
             }
 
             // 3. Theoretical envelope corners (if not represented by physical niches)
-            bool hasMinCorner = distinctSizes.Any(s => s.W == g.MinW && s.H == g.MinH);
+            bool hasMinCorner = distinctSizes.Any(s => Math.Abs(s.W - g.MinW) < 1e-6 && Math.Abs(s.H - g.MinH) < 1e-6);
             if (!hasMinCorner)
             {
                 string dim = $"{UnitHelper.Format(g.MinW, _settings.DisplayUnit)} × {UnitHelper.Format(g.MinH, _settings.DisplayUnit)} {u}";
@@ -235,8 +235,8 @@ namespace HatchGrouper
                 });
             }
 
-            bool hasMaxCorner = distinctSizes.Any(s => s.W == g.MaxW && s.H == g.MaxH);
-            if (!hasMaxCorner && (g.MaxW != g.MinW || g.MaxH != g.MinH))
+            bool hasMaxCorner = distinctSizes.Any(s => Math.Abs(s.W - g.MaxW) < 1e-6 && Math.Abs(s.H - g.MaxH) < 1e-6);
+            if (!hasMaxCorner && (Math.Abs(g.MaxW - g.MinW) > 1e-6 || Math.Abs(g.MaxH - g.MinH) > 1e-6))
             {
                 string dim = $"{UnitHelper.Format(g.MaxW, _settings.DisplayUnit)} × {UnitHelper.Format(g.MaxH, _settings.DisplayUnit)} {u}";
                 CaseCombo.Items.Add(new NicheCaseItem
@@ -281,8 +281,8 @@ namespace HatchGrouper
             var g = _groups[GroupCombo.SelectedIndex];
             var u = UnitHelper.Name(_settings.DisplayUnit);
 
-            int nicheW = item.W;
-            int nicheH = item.H;
+            double nicheW = item.W;
+            double nicheH = item.H;
 
             // Dimensions
             ValNiche.Text = $"{UnitHelper.Format(nicheW, _settings.DisplayUnit)} × {UnitHelper.Format(nicheH, _settings.DisplayUnit)} {u}";
@@ -380,7 +380,7 @@ namespace HatchGrouper
             UpdateDetails();
         }
 
-        private void DrawDiagram(int nicheW, int nicheH, NicheGroup g)
+        private void DrawDiagram(double nicheW, double nicheH, NicheGroup g)
         {
             DiagramCanvas.Children.Clear();
             double cWidth = DiagramCanvas.ActualWidth;

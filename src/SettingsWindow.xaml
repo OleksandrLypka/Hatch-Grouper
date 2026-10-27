@@ -17,6 +17,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <TextBlock x:Name="InputUnitLabel" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,12,6" />
             <ComboBox x:Name="InputUnitBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,6" />
@@ -26,8 +27,10 @@
             <ComboBox x:Name="DisplayUnitBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,6" />
             <TextBlock x:Name="ToleranceLabel" Grid.Row="3" VerticalAlignment="Center" Margin="0,0,12,6" />
             <ComboBox x:Name="ToleranceBox" Grid.Row="3" Grid.Column="1" Margin="0,0,0,6" />
-            <TextBlock x:Name="LanguageLabel" Grid.Row="4" VerticalAlignment="Center" Margin="0,6,12,0" />
-            <ComboBox x:Name="LanguageBox" Grid.Row="4" Grid.Column="1" Margin="0,6,0,0" />
+            <TextBlock x:Name="RoundingLabel" Grid.Row="4" VerticalAlignment="Center" Margin="0,0,12,6" />
+            <ComboBox x:Name="RoundingBox" Grid.Row="4" Grid.Column="1" Margin="0,0,0,6" />
+            <TextBlock x:Name="LanguageLabel" Grid.Row="5" VerticalAlignment="Center" Margin="0,6,12,0" />
+            <ComboBox x:Name="LanguageBox" Grid.Row="5" Grid.Column="1" Margin="0,6,0,0" />
         </Grid>
         <TextBlock x:Name="NoteText" TextWrapping="Wrap" MaxWidth="420" Foreground="Gray" Margin="0,0,0,8" />
         <TextBlock x:Name="VersionText" Foreground="Gray" Margin="0,0,0,12" />

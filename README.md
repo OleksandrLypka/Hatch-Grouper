@@ -4,7 +4,7 @@ A small Windows (WPF) tool that groups wall-niche sizes for water-meter (or othe
 into the smallest possible number of standard box sizes,
 so that one box can be manufactured for a whole group of similar niches instead of one box per niche.
 
-**Version:** 0.2-beta · **Author:** Oleksandr Lypka · **License:** [CC BY-NC 4.0](LICENSE)
+**Version:** 0.3-beta · **Author:** Oleksandr Lypka · **License:** [CC BY-NC 4.0](LICENSE)
 
 ## Features
 
@@ -18,6 +18,7 @@ so that one box can be manufactured for a whole group of similar niches instead 
 - **Formulas…** window: plain-language explanation, all formulas and an example computed from your current numbers.
 - **Visualization…** window: interactive 2D map of niches and group bounding boxes with zoom, pan, and group highlighting.
 - **Extreme cases…** window: visual 2D cross-section schematic and recommendation analysis of critical cases (smallest and largest niches) with wall clearances and trim laps so you don't need to test every single niche.
+- **Niche specification tab (1.1, 1.2...)**: natural-order list of every niche with its matching box size, trim, hatch, and group, with one-click clipboard copying (`(1.1) Niche... - Box...`) and CSV export.
 - Settings are saved automatically between runs.
 - Save / open a whole project (`*.hatch.json`) and export the result to CSV (opens correctly in Excel).
 - Readable error messages instead of crashes.
@@ -155,8 +156,16 @@ For anything beyond that, contact the author to agree on separate terms.
 
 ## Changelog
 
+### v0.3-beta
+- Support for sheet metal integrated box & trim profile where trim and box body form a single bent part: exact CAD bend difference parameters (`TrimDiffWMm = 116.2`, `TrimDiffHMm = 117.8`).
+- Added Box Depth parameter (`DepthMm`, default 80 mm).
+- Added dedicated **Drawing size** column (`BoxDrawing`, e.g. `852 × 768 × 80`) alongside exact calculated dimensions.
+- Configurable box size rounding in Settings for drawing specifications (To nearest, Always up / Ceiling, Always down / Floor).
+- Single-cell and row clipboard copying via right-click ContextMenu and `Ctrl+C`.
+
 ### v0.2-beta
-- Decimal millimeter support (0.1 mm precision) across all parameters.
+- Ordered niche-by-niche specification tab (`1.1, 1.2...`) in the main window with one-click clipboard copying (`(1.1) Ніша - Розмір короба`) and dedicated CSV export.
+- Full decimal millimeter support (0.1 mm precision) for niche dimensions in input text as well as box sizes.
 - Mounting ears parameter (`EarMm`, default 1 mm per side) with clearance check.
 - Exact hatch formula linked directly to outer trim dimensions: HatchW = TrimW - HatchDiffW, HatchH = TrimH - HatchDiffH.
 - Editable **Code / Note** column in the main table with CSV export and project file persistence.

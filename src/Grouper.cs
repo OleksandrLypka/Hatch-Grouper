@@ -19,8 +19,8 @@ namespace HatchGrouper
             if (s.ToleranceHMm < 0)
                 throw new UserException(Loc.T("err.tolerance", s.EffTrimHMm, s.EffMinLapHMm, s.MaxGapHMm, s.EffGapHMm));
 
-            int tolW = s.ToleranceWMm;
-            int tolH = s.ToleranceHMm;
+            double tolW = s.ToleranceWMm;
+            double tolH = s.ToleranceHMm;
 
             // 1. Distinct sizes are the points to cover.
             var sizes = niches.Select(n => (W: n.WidthMm, H: n.HeightMm)).Distinct().ToList();
@@ -32,8 +32,8 @@ namespace HatchGrouper
                 foreach (var h0 in sizes.Select(p => p.H).Distinct())
                 {
                     var inside = Enumerable.Range(0, sizes.Count)
-                        .Where(i => sizes[i].W >= w0 && sizes[i].W <= w0 + tolW &&
-                                    sizes[i].H >= h0 && sizes[i].H <= h0 + tolH)
+                        .Where(i => sizes[i].W >= w0 - 1e-6 && sizes[i].W <= w0 + tolW + 1e-6 &&
+                                    sizes[i].H >= h0 - 1e-6 && sizes[i].H <= h0 + tolH + 1e-6)
                         .ToArray();
                     if (inside.Length > 0) windows.Add(inside);
                 }
@@ -79,7 +79,7 @@ namespace HatchGrouper
         /// Assigns each distinct size to one containing window from <paramref name="chosenWindows"/>
         /// so that the maximum gap across all groups (and then the sum of gaps and spreads) is minimal.
         /// </summary>
-        private static int[] AssignPointsOptimally(List<(int W, int H)> sizes, List<int[]> chosenWindows, Settings s)
+        private static int[] AssignPointsOptimally(List<(double W, double H)> sizes, List<int[]> chosenWindows, Settings s)
         {
             int pointCount = sizes.Count;
             int winCount = chosenWindows.Count;
@@ -99,37 +99,38 @@ namespace HatchGrouper
 
         private sealed class Assigner
         {
-            private readonly List<(int W, int H)> _sizes;
+            private readonly List<(double W, double H)> _sizes;
             private readonly int[][] _allowed;
             private readonly int _winCount;
-            private readonly int _twoGapW;
-            private readonly int _twoGapH;
+            private readonly double _twoGapW;
+            private readonly double _twoGapH;
 
-            private readonly int[] _minW, _maxW, _minH, _maxH, _count;
+            private readonly double[] _minW, _maxW, _minH, _maxH;
+            private readonly int[] _count;
             private readonly int[] _currentOwner;
             private readonly int[] _bestOwner;
             private readonly List<int> _flexible;
 
-            private int _bestWorstTwoGap = int.MaxValue;
-            private int _bestSumTwoGap = int.MaxValue;
-            private int _bestSumSpread = int.MaxValue;
+            private double _bestWorstTwoGap = double.MaxValue;
+            private double _bestSumTwoGap = double.MaxValue;
+            private double _bestSumSpread = double.MaxValue;
             private long _nodes;
 
-            public Assigner(List<(int W, int H)> sizes, int[][] allowed, int winCount, double gapWMm, double gapHMm)
+            public Assigner(List<(double W, double H)> sizes, int[][] allowed, int winCount, double gapWMm, double gapHMm)
             {
                 _sizes = sizes;
                 _allowed = allowed;
                 _winCount = winCount;
-                _twoGapW = (int)Math.Round(2 * gapWMm);
-                _twoGapH = (int)Math.Round(2 * gapHMm);
+                _twoGapW = 2 * gapWMm;
+                _twoGapH = 2 * gapHMm;
 
-                _minW = new int[winCount];
-                _maxW = new int[winCount];
-                _minH = new int[winCount];
-                _maxH = new int[winCount];
+                _minW = new double[winCount];
+                _maxW = new double[winCount];
+                _minH = new double[winCount];
+                _maxH = new double[winCount];
                 _count = new int[winCount];
-                Array.Fill(_minW, int.MaxValue);
-                Array.Fill(_minH, int.MaxValue);
+                Array.Fill(_minW, double.MaxValue);
+                Array.Fill(_minH, double.MaxValue);
 
                 _currentOwner = new int[sizes.Count];
                 _bestOwner = new int[sizes.Count];
@@ -161,7 +162,7 @@ namespace HatchGrouper
                 return _bestOwner;
             }
 
-            private void AddToGroup(int g, int w, int h)
+            private void AddToGroup(int g, double w, double h)
             {
                 if (_count[g] == 0)
                 {
@@ -180,16 +181,16 @@ namespace HatchGrouper
 
             private void SearchFlexible(int idx)
             {
-                if (_bestWorstTwoGap < int.MaxValue && ++_nodes > AssignNodeLimit) return;
+                if (_bestWorstTwoGap < double.MaxValue && ++_nodes > AssignNodeLimit) return;
 
                 // Evaluate current bounding boxes (monotonic lower bound for partial assignments)
-                int worstTwoGap = 0, sumTwoGap = 0, sumSpread = 0;
+                double worstTwoGap = 0, sumTwoGap = 0, sumSpread = 0;
                 for (int g = 0; g < _winCount; g++)
                 {
                     if (_count[g] == 0) continue;
-                    int sw = _maxW[g] - _minW[g];
-                    int sh = _maxH[g] - _minH[g];
-                    int tg = Math.Max(_twoGapW + sw, _twoGapH + sh);
+                    double sw = _maxW[g] - _minW[g];
+                    double sh = _maxH[g] - _minH[g];
+                    double tg = Math.Max(_twoGapW + sw, _twoGapH + sh);
                     if (tg > worstTwoGap) worstTwoGap = tg;
                     sumTwoGap += tg;
                     sumSpread += sw + sh;
@@ -208,7 +209,7 @@ namespace HatchGrouper
                 }
 
                 int p = _flexible[idx];
-                int w = _sizes[p].W, h = _sizes[p].H;
+                double w = _sizes[p].W, h = _sizes[p].H;
                 var candidates = _allowed[p];
 
                 // Try the group where adding (w, h) produces the smallest gap / spread increase first
@@ -221,7 +222,8 @@ namespace HatchGrouper
 
                 foreach (int g in candidates)
                 {
-                    int oldMinW = _minW[g], oldMaxW = _maxW[g], oldMinH = _minH[g], oldMaxH = _maxH[g], oldCount = _count[g];
+                    double oldMinW = _minW[g], oldMaxW = _maxW[g], oldMinH = _minH[g], oldMaxH = _maxH[g];
+                    int oldCount = _count[g];
                     _currentOwner[p] = g;
                     AddToGroup(g, w, h);
 
@@ -231,23 +233,23 @@ namespace HatchGrouper
                 }
             }
 
-            private long CostAfterAdding(int g, int w, int h)
+            private double CostAfterAdding(int g, double w, double h)
             {
                 if (_count[g] == 0) return 0;
-                int oldSw = _maxW[g] - _minW[g];
-                int oldSh = _maxH[g] - _minH[g];
-                int newSw = Math.Max(_maxW[g], w) - Math.Min(_minW[g], w);
-                int newSh = Math.Max(_maxH[g], h) - Math.Min(_minH[g], h);
-                int newTwoGap = Math.Max(_twoGapW + newSw, _twoGapH + newSh);
-                int deltaSpread = (newSw - oldSw) + (newSh - oldSh);
-                return ((long)newTwoGap << 20) + deltaSpread;
+                double oldSw = _maxW[g] - _minW[g];
+                double oldSh = _maxH[g] - _minH[g];
+                double newSw = Math.Max(_maxW[g], w) - Math.Min(_minW[g], w);
+                double newSh = Math.Max(_maxH[g], h) - Math.Min(_minH[g], h);
+                double newTwoGap = Math.Max(_twoGapW + newSw, _twoGapH + newSh);
+                double deltaSpread = (newSw - oldSw) + (newSh - oldSh);
+                return newTwoGap * 1000.0 + deltaSpread;
             }
 
-            private bool IsWorseOrEqual(int worstTwoGap, int sumTwoGap, int sumSpread)
+            private bool IsWorseOrEqual(double worstTwoGap, double sumTwoGap, double sumSpread)
             {
-                if (worstTwoGap != _bestWorstTwoGap) return worstTwoGap > _bestWorstTwoGap;
-                if (sumTwoGap != _bestSumTwoGap) return sumTwoGap > _bestSumTwoGap;
-                return sumSpread >= _bestSumSpread;
+                if (Math.Abs(worstTwoGap - _bestWorstTwoGap) > 1e-6) return worstTwoGap > _bestWorstTwoGap;
+                if (Math.Abs(sumTwoGap - _bestSumTwoGap) > 1e-6) return sumTwoGap > _bestSumTwoGap;
+                return sumSpread >= _bestSumSpread - 1e-6;
             }
         }
 

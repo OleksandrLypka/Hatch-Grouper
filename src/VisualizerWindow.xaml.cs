@@ -84,13 +84,13 @@ namespace HatchGrouper
                 return;
             }
 
-            int minW = allNiches.Min(n => n.WidthMm);
-            int maxW = allNiches.Max(n => n.WidthMm);
-            int minH = allNiches.Min(n => n.HeightMm);
-            int maxH = allNiches.Max(n => n.HeightMm);
+            double minW = allNiches.Min(n => n.WidthMm);
+            double maxW = allNiches.Max(n => n.WidthMm);
+            double minH = allNiches.Min(n => n.HeightMm);
+            double maxH = allNiches.Max(n => n.HeightMm);
 
-            int padW = Math.Max(35, (int)((maxW - minW) * 0.12));
-            int padH = Math.Max(35, (int)((maxH - minH) * 0.12));
+            double padW = Math.Max(35.0, (maxW - minW) * 0.12);
+            double padH = Math.Max(35.0, (maxH - minH) * 0.12);
 
             _baseMinX = minW - padW;
             _baseMaxX = maxW + padW;
