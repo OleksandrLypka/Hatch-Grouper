@@ -9,16 +9,21 @@ so that one box can be manufactured for a whole group of similar niches instead 
 ## Features
 
 - Paste the niche list straight from the customer's document (Word, Excel, plain text).
+- Full decimal millimeter support (0.1 mm precision) for niche dimensions in input text and calculations.
 - Exact grouping: finds the minimum number of groups that cover all niches, and assigns borderline niches that fit into several groups so that the maximum gap is minimal.
-- Per group: box size, size with trim, hatch size, maximum gap, minimum trim lap, drawing code / note column, and the list of niches with source line numbers (by entrance).
+- Per group: exact box size, drawing designation (W×H×D, mm), size with trim, hatch size, maximum gap, minimum trim lap, editable drawing code / note column, and the list of niches with source line numbers (by entrance).
+- Support for **single-piece bent sheet metal profiles** (CAD bend offsets `TrimDiffWMm = 116.2`, `TrimDiffHMm = 117.8`) where trim and box body form a single bent part.
+- Dedicated **Drawing size** column (`BoxDrawing`, e.g. `852 × 768 × 80`) with configurable rounding in Settings (To nearest, Always up / Ceiling, Always down / Floor).
 - Editable **Code / Note** column in the table for drawing designations, saved in project files and exported to CSV.
-- Adjustable parameters: gap, trim, minimum lap, hatch offset, hatch opening clearance, mounting ears (symmetric on all sides by default; optional separate parameters/tolerance for width and height in **Settings…**).
+- Direct **cell and row clipboard copying** via right-click Context Menu and `Ctrl+C` shortcut with status bar confirmation.
+- Adjustable parameters: gap, trim, minimum lap, hatch offset, hatch opening clearance, mounting ears, box depth (symmetric on all sides by default; optional separate parameters/tolerance for width and height in **Settings…**).
 - Units of measurement (cm / mm) chosen separately for the input list, the parameter fields and the result table.
 - Interface languages: English (default), Ukrainian, Polish. Switch in **Settings…**.
-- **Formulas & CAD…** window: tabbed window with formulas, plain-language calculation explanation, and a step-by-step visual CAD guide with illustrations showing where to measure your 3D model in SolidWorks/Inventor.
+- **Formulas & CAD…** window: tabbed window with formulas, plain-language calculation explanation, and a step-by-step visual CAD guide with screenshots showing where to measure your 3D model in SolidWorks/Inventor.
+- **Click-to-enlarge image viewer**: full-resolution modal preview window with mouse wheel zoom, drag-to-pan, 1:1, and fit controls for CAD guide illustrations.
 - **Visualization…** window: interactive 2D map of niches and group bounding boxes with zoom, pan, and group highlighting.
 - **Extreme cases…** window: visual 2D cross-section schematic and recommendation analysis of critical cases (smallest and largest niches) with wall clearances and trim laps so you don't need to test every single niche.
-- **Niche specification tab (1.1, 1.2...)**: natural-order list of every niche with its matching box size, trim, hatch, and group, with one-click clipboard copying (`(1.1) Niche... - Box...`) and CSV export.
+- **Niche specification tab (1.1, 1.2...)**: natural-order list of every niche with its matching box size, trim, hatch, and group, with one-click clipboard copying (`(1.1) Niche... - Box...`) and dedicated CSV export.
 - Settings are saved automatically between runs.
 - Save / open a whole project (`*.hatch.json`) and export the result to CSV (opens correctly in Excel).
 - Readable error messages instead of crashes.
@@ -133,10 +138,12 @@ For a step-by-step visual tutorial with SolidWorks screenshots, see the **[CAD M
 | `src/Localization.cs` | all UI texts in Ukrainian / English / Polish |
 | `src/MainWindow.*` | main window, project save/load, CSV export |
 | `src/SettingsWindow.*` | settings dialog (units, language) |
-| `src/HelpWindow.*` | formulas and explanation window |
+| `src/HelpWindow.*` | formulas, calculation explanation, and CAD guide tutorial |
+| `src/ImagePreviewWindow.*` | modal image viewer with smooth zoom and pan for CAD illustrations |
 | `src/VisualizerWindow.*` | interactive 2D niche grouping map (zoom, pan, legend) |
 | `src/ExtremeCasesWindow.*` | 2D cross-section diagram and recommendation analysis of extreme cases |
 | `src/SettingsStore.cs` | saves the settings to `%AppData%\HatchGrouper\settings.json` |
+| `docs/CAD_GUIDE.md` | illustrated CAD measurement guide (English & Ukrainian) |
 
 ## Adding or fixing a translation
 
