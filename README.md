@@ -4,7 +4,7 @@ A small Windows (WPF) tool that groups wall-niche sizes for water-meter (or othe
 into the smallest possible number of standard box sizes,
 so that one box can be manufactured for a whole group of similar niches instead of one box per niche.
 
-**Version:** 0.3-beta · **Author:** Oleksandr Lypka · **License:** [CC BY-NC 4.0](LICENSE)
+**Version:** 0.4-beta · **Author:** Oleksandr Lypka · **License:** [CC BY-NC 4.0](LICENSE)
 
 ## Features
 
@@ -16,6 +16,7 @@ so that one box can be manufactured for a whole group of similar niches instead 
 - Dedicated **Drawing size** column (`BoxDrawing`, e.g. `852 × 768 × 80`) with configurable rounding in Settings (To nearest, Always up / Ceiling, Always down / Floor).
 - Editable **Code / Note** column in the table for drawing designations, saved in project files and exported to CSV.
 - Direct **cell and row clipboard copying** via right-click Context Menu and `Ctrl+C` shortcut with status bar confirmation.
+- **Double-click group inspection**: double-clicking any group row in the main table directly opens the Extreme Cases window for that specific group.
 - Adjustable parameters: gap, trim, minimum lap, hatch offset, hatch opening clearance, mounting ears, box depth (symmetric on all sides by default; optional separate parameters/tolerance for width and height in **Settings…**).
 - Units of measurement (cm / mm) chosen separately for the input list, the parameter fields and the result table.
 - Interface languages: English (default), Ukrainian, Polish. Switch in **Settings…**.
@@ -23,7 +24,8 @@ so that one box can be manufactured for a whole group of similar niches instead 
 - **Click-to-enlarge image viewer**: full-resolution modal preview window with mouse wheel zoom, drag-to-pan, 1:1, and fit controls for CAD guide illustrations.
 - **Visualization…** window: interactive 2D map of niches and group bounding boxes with zoom, pan, and group highlighting.
 - **Extreme cases…** window: visual 2D cross-section schematic and recommendation analysis of critical cases (smallest and largest niches) with wall clearances and trim laps so you don't need to test every single niche.
-- **Niche specification tab (1.1, 1.2...)**: natural-order list of every niche with its matching box size, trim, hatch, and group, with one-click clipboard copying (`(1.1) Niche... - Box...`) and dedicated CSV export.
+- **Niche specification tab (1.1, 1.2...)**: list of every niche with its matching box size, trim, hatch, and group, with one-click clipboard copying (`(1.1) Niche... - Box...`), dedicated CSV export, and a toggle to **group identical boxes together** in the list.
+- **Labels & Word (.docx) export**: dedicated window for previewing and printing installation stickers for field workers installing hatches across building entrances/floors (e.g. `Entrance: 1`, `Floor: 2`, `ID: 1.2`, drawing size, hatch size, group note), with entrance filtering, sorting, clipboard copy, and direct Microsoft Word (`.docx`) printable sticker sheet export.
 - Settings are saved automatically between runs.
 - Save / open a whole project (`*.hatch.json`) and export the result to CSV (opens correctly in Excel).
 - Readable error messages instead of crashes.
@@ -142,6 +144,8 @@ For a step-by-step visual tutorial with SolidWorks screenshots, see the **[CAD M
 | `src/ImagePreviewWindow.*` | modal image viewer with smooth zoom and pan for CAD illustrations |
 | `src/VisualizerWindow.*` | interactive 2D niche grouping map (zoom, pan, legend) |
 | `src/ExtremeCasesWindow.*` | 2D cross-section diagram and recommendation analysis of extreme cases |
+| `src/LabelsWindow.*` | interactive preview, sorting, filtering, and export for installation stickers |
+| `src/DocxLabelWriter.cs` | zero-dependency OpenXML Word (.docx) export for printable sticker sheets |
 | `src/SettingsStore.cs` | saves the settings to `%AppData%\HatchGrouper\settings.json` |
 | `docs/CAD_GUIDE.md` | illustrated CAD measurement guide (English & Ukrainian) |
 
@@ -152,8 +156,8 @@ To add a language, add a value to `AppLanguage`, one more text to every row of t
 
 ## Roadmap
 
-- Export the result to .docx (Open XML SDK).
 - Unit tests for `Grouper` (expected result for the sample list: 10 groups at 60 mm tolerance).
+- Optional visual label designer with custom layout templates.
 
 ## License
 
@@ -182,6 +186,15 @@ a new commercial product based on its code.
 For anything beyond that, contact the author to agree on separate terms.
 
 ## Changelog
+
+### v0.4-beta
+- **Worker Installation Labels & Word (.docx) export**: dedicated window for previewing and printing installation sticker sheets for site workers (`Entrance: 1`, `Floor: 2`, `ID: 1.2`, drawing box size, wall niche, hatch door size, trim, group name, code/note).
+- **Built-in OpenXML Word Generator (`DocxLabelWriter`)**: exports clean 2-column printable sticker cards to `.docx` formatted for A4 printing without third-party libraries.
+- **Labels Filtering & Sorting**: filter by entrance (or show all), sort by entrance/floor or group identical boxes together, and copy plain text summary directly to clipboard.
+- **Niches Specification Toggle ("Group identical boxes")**: added a toggle on the "By niches (1.1, 1.2...)" tab to group matching box sizes together in the list, with sorting preserved in clipboard copy and CSV export.
+- **Settings persistence & project save fix**: resolved JSON property name collision on `TrimMm` that caused errors when saving projects or settings; added auto-save on field defocus and automatic recovery for damaged config files.
+- **Double-click group inspection**: double-clicking any row in the result table opens the Extreme Cases analysis directly for that group.
+- Full trilingual localization (Ukrainian, English, Polish) for all new dialogs, labels, and exported documents.
 
 ### v0.3-beta
 - Support for sheet metal integrated box & trim profile where trim and box body form a single bent part: exact CAD bend difference parameters (`TrimDiffWMm = 116.2`, `TrimDiffHMm = 117.8`).

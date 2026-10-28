@@ -1,0 +1,38 @@
+<Window x:Class="HatchGrouper.LabelsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Labels" Height="720" Width="920" MinWidth="650" MinHeight="450"
+        WindowStartupLocation="CenterOwner" Background="#F1F5F9" ShowInTaskbar="False">
+    <DockPanel Margin="12">
+        <!-- Top Control Bar -->
+        <Border DockPanel.Dock="Top" Background="White" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,10">
+            <WrapPanel VerticalAlignment="Center">
+                <Button x:Name="ExportDocxBtn" Click="ExportDocx_Click" Padding="14,6" Margin="0,0,8,0" FontWeight="SemiBold"
+                        Background="#0284C7" Foreground="White" BorderThickness="0" Cursor="Hand" />
+                <Button x:Name="CopyTextBtn" Click="CopyText_Click" Padding="12,6" Margin="0,0,16,0" Cursor="Hand" />
+
+                <TextBlock x:Name="SortLabel" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="Medium" />
+                <ComboBox x:Name="SortComboBox" Width="220" SelectionChanged="FilterOrSort_Changed" Margin="0,0,14,0" />
+
+                <TextBlock x:Name="EntranceFilterLabel" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="Medium" />
+                <ComboBox x:Name="EntranceComboBox" Width="130" SelectionChanged="FilterOrSort_Changed" Margin="0,0,14,0" />
+
+                <TextBlock x:Name="TotalCountText" VerticalAlignment="Center" Foreground="#64748B" FontWeight="SemiBold" Margin="4,0,0,0" />
+            </WrapPanel>
+        </Border>
+
+        <!-- Bottom bar with Close button and Hint -->
+        <Border DockPanel.Dock="Bottom" Padding="0,10,0,0">
+            <DockPanel>
+                <Button x:Name="CloseBtn" DockPanel.Dock="Right" Width="95" Height="28"
+                        IsCancel="True" IsDefault="True" Click="Close_Click" />
+                <TextBlock x:Name="BottomHintText" VerticalAlignment="Center" Foreground="#64748B" FontSize="11" />
+            </DockPanel>
+        </Border>
+
+        <!-- Main Scrollable Area with visual preview of the cards -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <WrapPanel x:Name="LabelsContainer" Margin="0,0,0,10" />
+        </ScrollViewer>
+    </DockPanel>
+</Window>

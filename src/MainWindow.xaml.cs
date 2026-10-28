@@ -31,6 +31,21 @@ namespace HatchGrouper
             ApplySettings(SettingsStore.Load());
             InputBox.Text = ExampleFor(_inputUnit);
             Closing += (_, _) => SaveSettingsQuietly();
+
+            // Auto-save settings whenever user finishes editing any parameter field
+            RoutedEventHandler onParamLostFocus = (_, _) => SaveSettingsQuietly();
+            GapBox.LostFocus += onParamLostFocus;
+            TrimBox.LostFocus += onParamLostFocus;
+            TrimDiffWBox.LostFocus += onParamLostFocus;
+            TrimDiffHBox.LostFocus += onParamLostFocus;
+            LapBox.LostFocus += onParamLostFocus;
+            HatchDiffWBox.LostFocus += onParamLostFocus;
+            HatchDiffHBox.LostFocus += onParamLostFocus;
+            DepthBox.LostFocus += onParamLostFocus;
+            EarBox.LostFocus += onParamLostFocus;
+            GapHBox.LostFocus += onParamLostFocus;
+            TrimHBox.LostFocus += onParamLostFocus;
+            LapHBox.LostFocus += onParamLostFocus;
         }
 
         // Example shown on start so that users see the expected input format (sizes in cm).
@@ -135,8 +150,8 @@ namespace HatchGrouper
                         nicheList.Add(detail);
                     }
                 }
-                _nicheRows = nicheList.OrderBy(n => n.Entrance).ThenBy(n => n.NicheNo).ToList();
-                NichesGrid.ItemsSource = _nicheRows;
+                _nicheRows = nicheList;
+                UpdateNichesGridSorting();
                 NichesCountLabel.Text = Loc.T("status.niches.count", _nicheRows.Count);
 
                 var u = UnitHelper.Name(_displayUnit);
@@ -301,21 +316,23 @@ namespace HatchGrouper
 
         private void CopyNicheList_Click(object sender, RoutedEventArgs e)
         {
-            if (_nicheRows == null || _nicheRows.Count == 0) return;
+            var items = GetSortedNicheRows();
+            if (items.Count == 0) return;
             var u = UnitHelper.Name(_displayUnit);
-            var lines = _nicheRows.Select(n =>
+            var lines = items.Select(n =>
                 string.IsNullOrWhiteSpace(n.Note)
                     ? $"{n.Id} {Loc.T("niche.word")} {n.Niche} {u} — {n.BoxDrawing}"
                     : $"{n.Id} {Loc.T("niche.word")} {n.Niche} {u} — {n.BoxDrawing} [{n.Note}]");
             Clipboard.SetText(string.Join(Environment.NewLine, lines));
-            StatusText.Text = Loc.T("status.niches.copied", _nicheRows.Count);
+            StatusText.Text = Loc.T("status.niches.copied", items.Count);
         }
 
         private void ExportNiches_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (_nicheRows == null || _nicheRows.Count == 0) return;
+                var items = GetSortedNicheRows();
+                if (items.Count == 0) return;
                 var dlg = new SaveFileDialog
                 {
                     Filter = Loc.T("filter.csv"),
@@ -327,7 +344,7 @@ namespace HatchGrouper
                 var u = UnitHelper.Name(_displayUnit);
                 var sb = new StringBuilder();
                 sb.AppendLine(Loc.T("csv.niches.header", u));
-                foreach (var r in _nicheRows)
+                foreach (var r in items)
                 {
                     sb.AppendLine(string.Join(";", new[]
                     {
@@ -348,6 +365,44 @@ namespace HatchGrouper
             {
                 Fail(Loc.T("err.export"), ex);
             }
+        }
+
+        private void Labels_Click(object sender, RoutedEventArgs e)
+        {
+            if (_nicheRows == null || _nicheRows.Count == 0)
+            {
+                Group_Click(sender, e);
+            }
+
+            if (_nicheRows == null || _nicheRows.Count == 0)
+            {
+                StatusText.Text = Loc.T("status.pressgroup");
+                return;
+            }
+
+            var items = GetSortedNicheRows();
+            new LabelsWindow(items, _displayUnit) { Owner = this }.ShowDialog();
+        }
+
+        private void GroupByBox_Changed(object sender, RoutedEventArgs e)
+        {
+            UpdateNichesGridSorting();
+            SaveSettingsQuietly();
+        }
+
+        private void UpdateNichesGridSorting()
+        {
+            if (_nicheRows == null || _nicheRows.Count == 0) return;
+            NichesGrid.ItemsSource = GetSortedNicheRows();
+        }
+
+        private List<NicheDetailRow> GetSortedNicheRows()
+        {
+            if (_nicheRows == null || _nicheRows.Count == 0) return new List<NicheDetailRow>();
+            bool byBox = GroupByBoxCheckBox?.IsChecked == true;
+            return byBox
+                ? _nicheRows.OrderBy(n => n.GroupNo).ThenBy(n => n.Entrance).ThenBy(n => n.NicheNo).ToList()
+                : _nicheRows.OrderBy(n => n.Entrance).ThenBy(n => n.NicheNo).ToList();
         }
 
         private void ResultGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -630,6 +685,7 @@ namespace HatchGrouper
                 GapHMm = gapH,
                 TrimHMm = trimH,
                 MinLapHMm = lapH,
+                GroupNichesByBox = GroupByBoxCheckBox?.IsChecked == true,
             };
         }
 
@@ -641,6 +697,8 @@ namespace HatchGrouper
             _separateTolerance = s.SeparateTolerance;
             _boxRounding = s.BoxRounding;
             Loc.Current = s.Language;
+            if (GroupByBoxCheckBox != null)
+                GroupByBoxCheckBox.IsChecked = s.GroupNichesByBox;
             GapBox.Text = UnitHelper.Format(s.GapMm, _paramUnit);
             TrimBox.Text = UnitHelper.Format(s.TrimMm, _paramUnit);
             TrimDiffWBox.Text = UnitHelper.Format(s.TrimDiffWMm, _paramUnit);
@@ -690,12 +748,15 @@ namespace HatchGrouper
             SaveButton.Content = Loc.T("btn.save");
             ExportButton.Content = Loc.T("btn.export");
             SettingsButton.Content = Loc.T("btn.settings");
+            if (LabelsMainButton != null) LabelsMainButton.Content = Loc.T("btn.labels");
             HelpButton.Content = Loc.T("btn.help");
 
             GroupsTabItem.Header = Loc.T("tab.groups");
             NichesTabItem.Header = Loc.T("tab.niches");
             CopyNicheListButton.Content = Loc.T("btn.copy.niches");
             ExportNichesButton.Content = Loc.T("btn.export.niches");
+            if (LabelsButton != null) LabelsButton.Content = Loc.T("btn.labels");
+            if (GroupByBoxCheckBox != null) GroupByBoxCheckBox.Content = Loc.T("chk.group.by.box");
             if (_nicheRows.Count > 0)
                 NichesCountLabel.Text = Loc.T("status.niches.count", _nicheRows.Count);
 
@@ -726,10 +787,73 @@ namespace HatchGrouper
             if (CopyNicheRowMenuItem != null) CopyNicheRowMenuItem.Header = Loc.T("menu.copy.row");
         }
 
+        private Settings ReadSettingsSafe()
+        {
+            var s = _lastSettings != null ? new Settings
+            {
+                InputUnit = _lastSettings.InputUnit,
+                ParamUnit = _lastSettings.ParamUnit,
+                DisplayUnit = _lastSettings.DisplayUnit,
+                SeparateTolerance = _lastSettings.SeparateTolerance,
+                BoxRounding = _lastSettings.BoxRounding,
+                Language = _lastSettings.Language,
+                GapMm = _lastSettings.GapMm,
+                TrimMm = _lastSettings.TrimMm,
+                TrimDiffWMm = _lastSettings.TrimDiffWMm,
+                TrimDiffHMm = _lastSettings.TrimDiffHMm,
+                MinLapMm = _lastSettings.MinLapMm,
+                HatchDiffWMm = _lastSettings.HatchDiffWMm,
+                HatchDiffHMm = _lastSettings.HatchDiffHMm,
+                DepthMm = _lastSettings.DepthMm,
+                EarMm = _lastSettings.EarMm,
+                GapHMm = _lastSettings.GapHMm,
+                TrimHMm = _lastSettings.TrimHMm,
+                MinLapHMm = _lastSettings.MinLapHMm,
+                GroupNichesByBox = _lastSettings.GroupNichesByBox,
+            } : new Settings();
+
+            s.InputUnit = _inputUnit;
+            s.ParamUnit = _paramUnit;
+            s.DisplayUnit = _displayUnit;
+            s.SeparateTolerance = _separateTolerance;
+            s.BoxRounding = _boxRounding;
+            s.Language = Loc.Current;
+            s.GroupNichesByBox = GroupByBoxCheckBox?.IsChecked == true;
+
+            if (TryParseLengthDouble(GapBox.Text, _paramUnit, out var g)) s.GapMm = g;
+            if (TryParseLengthDouble(TrimBox.Text, _paramUnit, out var t)) s.TrimMm = t;
+            if (TryParseLengthDouble(TrimDiffWBox.Text, _paramUnit, out var tdw)) s.TrimDiffWMm = tdw;
+            if (TryParseLengthDouble(TrimDiffHBox.Text, _paramUnit, out var tdh)) s.TrimDiffHMm = tdh;
+            if (TryParseLengthDouble(LapBox.Text, _paramUnit, out var l)) s.MinLapMm = l;
+            if (TryParseLengthDouble(HatchDiffWBox.Text, _paramUnit, out var hdw)) s.HatchDiffWMm = hdw;
+            if (TryParseLengthDouble(HatchDiffHBox.Text, _paramUnit, out var hdh)) s.HatchDiffHMm = hdh;
+            if (TryParseLengthDouble(DepthBox.Text, _paramUnit, out var d)) s.DepthMm = d;
+            if (TryParseLengthDouble(EarBox.Text, _paramUnit, out var ear)) s.EarMm = ear;
+
+            if (_separateTolerance)
+            {
+                if (TryParseLengthDouble(GapHBox.Text, _paramUnit, out var gh)) s.GapHMm = gh;
+                if (TryParseLengthDouble(TrimHBox.Text, _paramUnit, out var th)) s.TrimHMm = th;
+                if (TryParseLengthDouble(LapHBox.Text, _paramUnit, out var lh)) s.MinLapHMm = lh;
+            }
+            else
+            {
+                s.GapHMm = s.GapMm;
+                s.TrimHMm = s.TrimMm;
+                s.MinLapHMm = s.MinLapMm;
+            }
+
+            return s;
+        }
+
         /// <summary>Saves the current values on exit; invalid fields are skipped silently.</summary>
         private void SaveSettingsQuietly()
         {
-            try { SettingsStore.Save(ReadSettings()); }
+            try
+            {
+                var s = ReadSettingsSafe();
+                SettingsStore.Save(s);
+            }
             catch { }
         }
 

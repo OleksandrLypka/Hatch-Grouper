@@ -48,7 +48,7 @@ namespace HatchGrouper
                     return plusIdx > 0 ? info.Substring(0, plusIdx) : info;
                 }
                 var v = typeof(AppInfo).Assembly.GetName().Version;
-                return v == null ? "0.3-beta" : $"{v.Major}.{v.Minor}-beta";
+                return v == null ? "0.4-beta" : $"{v.Major}.{v.Minor}-beta";
             }
         }
     }
@@ -104,20 +104,8 @@ namespace HatchGrouper
         [JsonIgnore] public double ToleranceHMm => Math.Round(2 * (MaxGapHMm - (EffGapHMm + EarMm)), 1);
         [JsonIgnore] public double ToleranceMm => ToleranceWMm;
 
-        // Backward compatibility for projects saved with older TrimMm property
-        [JsonPropertyName("TrimMm")]
-        public double? LegacyTrimMm
-        {
-            get => null;
-            set
-            {
-                if (value.HasValue && value.Value > 0 && TrimDiffWMm == 116.2)
-                {
-                    TrimDiffWMm = Math.Round(value.Value * 2, 1);
-                    TrimDiffHMm = Math.Round(value.Value * 2, 1);
-                }
-            }
-        }
+        /// <summary>Whether identical boxes should be grouped together in the detailed niche list.</summary>
+        public bool GroupNichesByBox { get; set; } = false;
     }
 
     /// <summary>A set of niches that share one box size.</summary>
