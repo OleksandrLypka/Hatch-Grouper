@@ -216,9 +216,15 @@ For anything beyond that, contact the author to agree on separate terms.
 - **Extreme cases & gap analysis** window (`ExtremeCasesWindow`) with 2D cross-section diagram, critical niches check (narrowest, lowest, widest, tallest, envelope), and dynamic clearance recommendations.
 
 ### v0.1
-- First version: parse, group, save/load project, CSV export.
-- Program settings saved between runs; example input; user-friendly error messages.
-- Units (cm / mm) for the input list, parameters and result table; interface language switch.
-- **Formulas…** window with a plain explanation; Polish language; English is the default language.
-- Optimal assignment of borderline niches to minimise the maximum gap; optional separate tolerance for width and height.
-- **Visualization…** window with 2D grouping map, smooth zoom/pan controls, group highlighting, and full trilingual localization.
+Initial release of HatchGrouper — a WPF tool for grouping wall-niche sizes into standardized inspection hatch box sizes:
+- Paste the niche list straight from the customer's document (Word, Excel, plain text).
+- Exact grouping: finds the minimum number of groups that cover all niches, and assigns borderline niches that fit into several groups so that the maximum gap is minimal.
+- Per group: box size, hatch size, maximum gap, minimum trim lap, and the list of niches (by entrance).
+- Adjustable parameters: gap, trim, minimum lap, hatch offset (symmetric on all sides by default; optional separate parameters/tolerance for width and height in **Settings…**).
+- Units of measurement (cm / mm) chosen separately for the input list, the parameter fields, and the result table.
+- Interface languages: English (default), Ukrainian, Polish. Switch in **Settings…**.
+- **Formulas…** window: plain-language explanation, all formulas, and an example computed from your current numbers.
+- **Visualization…** window: interactive 2D map of niches and group bounding boxes with zoom, pan, and group highlighting.
+- Settings are saved automatically between runs.
+- Save / open a whole project (`*.hatch.json`) and export the result to CSV (opens correctly in Excel).
+- Readable error messages instead of crashes.
